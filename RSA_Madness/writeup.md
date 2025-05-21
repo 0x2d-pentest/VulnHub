@@ -242,7 +242,7 @@ root@EvilBoxOne:~# cat root.txt
 ## 📋 Резюме
 
 🧰 **Инструменты:**  
-  - nmap, ffuf, ssh2john, john, openssl
+  - nmap, ffuf, webhook.site, ssh2john, john, openssl
 
 🚨 **Уязвимости, которые удалось обнаружить:**  
   - LFI  
