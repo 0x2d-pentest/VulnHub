@@ -1,0 +1,39 @@
+# Nmap 7.94SVN scan initiated Thu Jul 10 05:43:53 2025 as: /usr/lib/nmap/nmap -sT -Pn -sV -T4 -A -v -p 22,80 -oN nmap-sV.txt 192.168.56.126
+Nmap scan report for 192.168.56.126
+Host is up (0.00085s latency).
+
+PORT   STATE SERVICE VERSION
+22/tcp open  ssh     OpenSSH 7.6p1 Ubuntu 4ubuntu0.5 (Ubuntu Linux; protocol 2.0)
+| ssh-hostkey: 
+|   2048 59:d4:c0:fd:62:45:97:83:15:c0:15:b2:ac:25:60:99 (RSA)
+|   256 7e:37:f0:11:63:80:15:a3:d3:9d:43:c6:09:be:fb:da (ECDSA)
+|_  256 52:e9:4f:71:bc:14:dc:00:34:f2:a7:b3:58:b5:0d:ce (ED25519)
+80/tcp open  http    Apache httpd 2.4.29
+| http-ls: Volume /
+| SIZE  TIME              FILENAME
+| -     2020-10-29 21:07  site/
+|_
+|_http-server-header: Apache/2.4.29 (Ubuntu)
+|_http-title: Index of /
+| http-methods: 
+|_  Supported Methods: GET POST OPTIONS HEAD
+MAC Address: 08:00:27:85:72:4B (Oracle VirtualBox virtual NIC)
+Warning: OSScan results may be unreliable because we could not find at least 1 open and 1 closed port
+Device type: general purpose|storage-misc
+Running (JUST GUESSING): Linux 4.X|5.X|2.6.X|3.X (97%), Synology DiskStation Manager 5.X (91%)
+OS CPE: cpe:/o:linux:linux_kernel:4 cpe:/o:linux:linux_kernel:5 cpe:/o:linux:linux_kernel:2.6.32 cpe:/o:linux:linux_kernel:3 cpe:/a:synology:diskstation_manager:5.2
+Aggressive OS guesses: Linux 4.15 - 5.8 (97%), Linux 5.0 - 5.4 (97%), Linux 5.0 - 5.5 (95%), Linux 5.4 (91%), Linux 2.6.32 (91%), Linux 3.10 - 4.11 (91%), Linux 3.2 - 4.9 (91%), Linux 3.4 - 3.10 (91%), Synology DiskStation Manager 5.2-5644 (91%), Linux 2.6.32 - 3.10 (91%)
+No exact OS matches for host (test conditions non-ideal).
+Uptime guess: 31.143 days (since Mon Jun  9 02:18:43 2025)
+Network Distance: 1 hop
+TCP Sequence Prediction: Difficulty=248 (Good luck!)
+IP ID Sequence Generation: All zeros
+Service Info: Host: 127.0.0.1; OS: Linux; CPE: cpe:/o:linux:linux_kernel
+
+TRACEROUTE
+HOP RTT     ADDRESS
+1   0.85 ms 192.168.56.126
+
+Read data files from: /usr/share/nmap
+OS and Service detection performed. Please report any incorrect results at https://nmap.org/submit/ .
+# Nmap done at Thu Jul 10 05:44:09 2025 -- 1 IP address (1 host up) scanned in 15.97 seconds
