@@ -156,7 +156,7 @@ ROPgadget --binary ./brainpan.exe --only "call|jmp|esp"
 
 Есть `0x311712f3 : jmp esp`, далее нужно проверить возможность получения контроля над адресом возврата и возможностью записать полезную нагрузку в стек.
 
-Пробую подключиться с kali  
+Пробую подключиться с kali на виртуальную машину с Windows7 и запущенным brainpan.exe в immunity debugger  
 ```bash
 ┌──(kali㉿0x2d-pentest)-[~]
 └─$ sudo nmap -sn 192.168.56.106/24                                                                  
