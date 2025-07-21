@@ -271,6 +271,46 @@ else
 }
 ```
 
+### index.php
+Интересный момент: если установлена кука `lang`, то сервер попытается выполнить **include** файла, указанного в ней из директории **/lang/**: `include("lang/".$_COOKIE['lang']);`
+```php
+<?php
+//Multilingual. Not implemented yet.
+//setcookie("lang","en.lang.php");
+if (isset($_COOKIE['lang']))
+{
+	include("lang/".$_COOKIE['lang']);
+}
+// Not implemented yet.
+?>
+<html>
+<head>
+<title>PwnLab Intranet Image Hosting</title>
+</head>
+<body>
+<center>
+<img src="images/pwnlab.png"><br />
+[ <a href="/">Home</a> ] [ <a href="?page=login">Login</a> ] [ <a href="?page=upload">Upload</a> ]
+<hr/><br/>
+<?php
+	if (isset($_GET['page']))
+	{
+		include($_GET['page'].".php");
+	}
+	else
+	{
+		echo "Use this server to upload and share image files inside the intranet";
+	}
+?>
+</center>
+</body>
+</html>
+```
+**poc**
+![cookie](screenshots/03.cookie.png)
+
+
+
 ### upload.php
 Прямой загрузки реверс-шелла через `upload.php` без авторизации не получится, так как проверка `$_SESSION['user']` блокирует доступ
 ```php
