@@ -1,7 +1,7 @@
 # VulnHub - Lin Easy - PwnLab_init
 
 📅 Дата: 2025-07-19  
-🧠 Сложность: Easy  
+🧠 Сложность: Low  
 💻 IP-адрес: 192.168.56.127  
 
 ---
@@ -739,7 +739,7 @@ Message for root:
 ```
 
 Похоже, что если я передам `test; cp /bin/bash /tmp/sh; chmod +s /tmp/sh; /bin/echo nothing > /dev/null`  
-то выполнится следующая череда команд с правами **root**  
+то выполнится следующая последовательность команд с правами **root**:  
 ```bash
 /bin/echo test; cp /bin/bash /tmp/sh; chmod +s /tmp/sh; /bin/echo nothing > /dev/null >> /root/messages.txt
 ```
