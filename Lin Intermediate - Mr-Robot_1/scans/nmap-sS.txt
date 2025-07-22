@@ -1,0 +1,12 @@
+# Nmap 7.94SVN scan initiated Tue Jul 22 09:51:58 2025 as: /usr/lib/nmap/nmap -sS -p- -Pn --max-parallelism 100 --min-rate 1000 -v -oN nmap-sS.txt 192.168.56.129
+Nmap scan report for 192.168.56.129
+Host is up (0.00096s latency).
+Not shown: 65532 filtered tcp ports (no-response)
+PORT    STATE  SERVICE
+22/tcp  closed ssh
+80/tcp  open   http
+443/tcp open   https
+MAC Address: 08:00:27:06:5B:DB (Oracle VirtualBox virtual NIC)
+
+Read data files from: /usr/share/nmap
+# Nmap done at Tue Jul 22 09:54:10 2025 -- 1 IP address (1 host up) scanned in 131.62 seconds

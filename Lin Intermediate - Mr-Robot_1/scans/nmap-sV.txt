@@ -1,0 +1,42 @@
+# Nmap 7.94SVN scan initiated Tue Jul 22 09:54:10 2025 as: /usr/lib/nmap/nmap -sT -Pn -sV -T4 -A -v -p 80,443 -oN nmap-sV.txt 192.168.56.129
+Nmap scan report for 192.168.56.129
+Host is up (0.0011s latency).
+
+PORT    STATE SERVICE  VERSION
+80/tcp  open  http     Apache httpd
+|_http-favicon: Unknown favicon MD5: D41D8CD98F00B204E9800998ECF8427E
+| http-methods: 
+|_  Supported Methods: GET HEAD POST OPTIONS
+|_http-title: Site doesn't have a title (text/html).
+|_http-server-header: Apache
+443/tcp open  ssl/http Apache httpd
+|_http-server-header: Apache
+| http-methods: 
+|_  Supported Methods: GET HEAD POST OPTIONS
+| ssl-cert: Subject: commonName=www.example.com
+| Issuer: commonName=www.example.com
+| Public Key type: rsa
+| Public Key bits: 1024
+| Signature Algorithm: sha1WithRSAEncryption
+| Not valid before: 2015-09-16T10:45:03
+| Not valid after:  2025-09-13T10:45:03
+| MD5:   3c16:3b19:87c3:42ad:6634:c1c9:d0aa:fb97
+|_SHA-1: ef0c:5fa5:931a:09a5:687c:a2c2:80c4:c792:07ce:f71b
+|_http-title: Site doesn't have a title (text/html).
+|_http-favicon: Unknown favicon MD5: D41D8CD98F00B204E9800998ECF8427E
+MAC Address: 08:00:27:06:5B:DB (Oracle VirtualBox virtual NIC)
+Warning: OSScan results may be unreliable because we could not find at least 1 open and 1 closed port
+Aggressive OS guesses: Linux 3.10 - 4.11 (97%), Linux 3.2 - 4.9 (97%), Linux 3.18 (93%), Android 4.1.1 (91%), OpenWrt Chaos Calmer 15.05 (Linux 3.18) or Designated Driver (Linux 4.1 or 4.4) (91%), Android 4.0 (91%), Android 5.1 (91%), Linux 2.6.32 (91%), Linux 3.2 - 3.16 (91%), Linux 3.2 - 3.8 (91%)
+No exact OS matches for host (test conditions non-ideal).
+Uptime guess: 0.000 days (since Tue Jul 22 09:54:03 2025)
+Network Distance: 1 hop
+TCP Sequence Prediction: Difficulty=260 (Good luck!)
+IP ID Sequence Generation: All zeros
+
+TRACEROUTE
+HOP RTT     ADDRESS
+1   1.09 ms 192.168.56.129
+
+Read data files from: /usr/share/nmap
+OS and Service detection performed. Please report any incorrect results at https://nmap.org/submit/ .
+# Nmap done at Tue Jul 22 09:54:32 2025 -- 1 IP address (1 host up) scanned in 21.87 seconds
