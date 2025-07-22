@@ -1,0 +1,32 @@
+# Nmap 7.94SVN scan initiated Tue Jul 22 00:34:36 2025 as: /usr/lib/nmap/nmap -sT -Pn -sV -T4 -A -v -p 80 -oN nmap-sV.txt 192.168.56.128
+Nmap scan report for 192.168.56.128
+Host is up (0.00095s latency).
+
+PORT   STATE SERVICE VERSION
+80/tcp open  http    Apache httpd 2.2.15 ((CentOS) DAV/2 PHP/5.3.3)
+|_http-title: Site doesn't have a title (text/html; charset=UTF-8).
+| http-methods: 
+|   Supported Methods: GET HEAD POST OPTIONS TRACE
+|_  Potentially risky methods: TRACE
+|_http-server-header: Apache/2.2.15 (CentOS) DAV/2 PHP/5.3.3
+| http-robots.txt: 3 disallowed entries 
+|_/cola /sisi /beer
+MAC Address: 08:00:27:A5:A6:76 (Oracle VirtualBox virtual NIC)
+Warning: OSScan results may be unreliable because we could not find at least 1 open and 1 closed port
+Device type: general purpose|storage-misc|media device|webcam
+Running (JUST GUESSING): Linux 2.6.X|3.X|4.X (97%), Synology DiskStation Manager 5.X (89%), LG embedded (88%), Tandberg embedded (88%)
+OS CPE: cpe:/o:linux:linux_kernel:2.6 cpe:/o:linux:linux_kernel:3 cpe:/o:linux:linux_kernel:4 cpe:/a:synology:diskstation_manager:5.2
+Aggressive OS guesses: Linux 2.6.32 - 3.10 (97%), Linux 2.6.32 - 3.13 (97%), Linux 2.6.39 (94%), Linux 2.6.32 - 3.5 (92%), Linux 3.2 - 3.16 (91%), Linux 3.2 - 3.8 (91%), Linux 3.2 - 4.9 (91%), Linux 3.2 (90%), Linux 2.6.32 (90%), Linux 2.6.38 - 3.0 (90%)
+No exact OS matches for host (test conditions non-ideal).
+Uptime guess: 0.026 days (since Mon Jul 21 23:56:39 2025)
+Network Distance: 1 hop
+TCP Sequence Prediction: Difficulty=250 (Good luck!)
+IP ID Sequence Generation: All zeros
+
+TRACEROUTE
+HOP RTT     ADDRESS
+1   0.95 ms 192.168.56.128
+
+Read data files from: /usr/share/nmap
+OS and Service detection performed. Please report any incorrect results at https://nmap.org/submit/ .
+# Nmap done at Tue Jul 22 00:34:47 2025 -- 1 IP address (1 host up) scanned in 11.80 seconds
